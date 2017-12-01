@@ -57,7 +57,8 @@ public class Accessory {
     /**
      *
      */
-    public static final String PATH = new File(".").getAbsolutePath();
+    //public static final String PATH = new File("").getAbsolutePath();
+    public static final String PATH = new File("").getAbsoluteFile().getAbsolutePath();
 
     /**
      *
@@ -220,7 +221,9 @@ public class Accessory {
      */
     public static String parsePortAndCut(String port) {
         assert port != null;
-        return port.substring(port.indexOf(":") + 1, port.lastIndexOf("'")); // name smth like: port '5400TP035:CB<216{ic}[CB<216@1].X'
+        String s1 = port.substring(port.indexOf(":")+1, port.indexOf("{"));
+        String s2 = port.substring(port.indexOf(".")+1, port.indexOf("'"));
+        return (s1+s2);
     }
 
     /**
@@ -231,7 +234,19 @@ public class Accessory {
      */
     public static String parsePortToBlock(String port) {
         assert port != null;
-        return port.substring(port.indexOf(":") + 1, port.indexOf("{")); // name smth like CB<7454
+        return port.substring(0, port.indexOf(".")); // name smth like CB<7454
+        // port '5400TP035:ION{ic}[ION<1].ION'
+    }
+    
+    /**
+     * method implemets parsing of Port String to get Block Name.
+     *
+     * @param port
+     * @return
+     */
+    public static String parsePortToBlockOld(String port) {
+        assert port != null;
+        return port.substring(port.indexOf(":")+1, port.indexOf("{")); // name smth like CB<7454
         // port '5400TP035:ION{ic}[ION<1].ION'
     }
 
@@ -243,11 +258,22 @@ public class Accessory {
      */
     public static String parsePortToPort(String port) {
         assert port != null;
-        return port.substring(port.lastIndexOf(".") + 1, port.lastIndexOf("'")); // name smth like CB<7454
+        return port.substring(port.indexOf(".") + 1, port.length()); // name smth like CB<7454
+    }
+    
+    /**
+     * method implemets parsing of Port String to get Port Name.
+     *
+     * @param port
+     * @return
+     */
+    public static String parsePortToPortOld(String port) {
+        assert port != null;
+        return port.substring(port.indexOf(".") + 1, port.lastIndexOf("'")); // name smth like CB<7454
     }
 
     /**
-     * Method implemets parsing of Port String to get NodeName with number.
+     * Method implements parsing of Port String to get NodeName with number.
      *
      * @param port
      * @return
@@ -290,7 +316,7 @@ public class Accessory {
      * @return
      */
     public static String parsePortToNumber(String port) {
-        String blockName = port.substring(port.indexOf("'") + 1, port.indexOf("{")); // name smth like CB<7454
+        String blockName = port.substring(0, port.indexOf(".")); // name smth like CB<7454
         assert !blockName.isEmpty();
         return blockName.split("<")[1];
     }

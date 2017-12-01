@@ -32,7 +32,6 @@ import java.io.FileReader;
 import java.util.ArrayDeque;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -209,7 +208,6 @@ public class SimpleAutotracing {
         for (PortInst pi : piArray) {
             String secondPort = auxisa.dealWithBlock(pi.getNodeInst(), pi);
             nodeList.add(pi.getNodeInst());
-            //System.out.println(pi.getNodeInst().toString());
             usedNodeList.add(pi.getNodeInst().toString());
 
             String nextBlock = nogg.deikstra(firstChain, secondPort, null, doDelete, true).getFirstObject(); // woops, should be tripletraced for all ports.
@@ -231,10 +229,7 @@ public class SimpleAutotracing {
         }
         NodeInst ni;
         while ((ni = nodeList.pollFirst()) != null) {
-            //while(nodeList.size()>0) {
-            //ni = nodeList.iterator().next();
             if (ni.toString().contains("INPUT")) {
-                //nodeList.remove(ni);
                 nogg.setBlockAsUsed(auxisa.getParameter(ni.toString()));
                 continue;
             }
@@ -360,19 +355,14 @@ public class SimpleAutotracing {
     }
 
     private int deikstraMultiThreads(ArrayList<Integer> firstChainsList, PortInst pi, String secondPort, String param) throws Exception {
-        //int pathLength = 100000;
-        //int firstChain = -1;
         final AtomicInteger pathLength = new AtomicInteger(100000);
         final AtomicInteger firstChain = new AtomicInteger(-1);
-        //ArrayList<Thread> threadList = new ArrayList<>();
-        List<Future> futures = new ArrayList<Future>();
+        List<Future> futures = new ArrayList<>();
         HashMap<Integer, Pair<String, Integer>> map = new HashMap<>();
 
         for (int firstC : firstChainsList) {
-
-            //Thread myThready = new Thread(new Runnable() {
             futures.add(service.submit(new Runnable() {
-                public void run() //Этот метод будет выполняться в побочном потоке
+                public void run()
                 {
                     NonOrientedGlobalGraph noggX = new NonOrientedGlobalGraph(nogg);
                     Pair<String, Integer> pair = noggX.deikstra(firstC, secondPort, param, false, false);
@@ -381,13 +371,7 @@ public class SimpleAutotracing {
                     }
                 }
             }));
-            //myThready.start();	//Запуск потока
-            //threadList.add(myThready);
         }
-
-        /*for(Thread myThready : threadList) {
-            myThready.join();
-        }*/
         for (Future f : futures) {
             f.get();
         }
@@ -418,7 +402,7 @@ public class SimpleAutotracing {
      * Method to use getKeyFromMap method without exceptions.
      */
     private void addKeyFromMap(String nextBlock) throws IOException {
-        getKeyFromMap(nextBlock, nextBlock.substring(nextBlock.indexOf(":") + 1, nextBlock.indexOf("<")));
+        getKeyFromMap(nextBlock, nextBlock.substring(0, nextBlock.indexOf("<")));
     }
 
     /**
@@ -451,7 +435,7 @@ public class SimpleAutotracing {
      * Variation of addKey(string, int) with (string, string) parameters.
      */
     private void addKey(String ni, String number) {
-        String absNum = ni.substring(ni.indexOf("<") + 1, ni.lastIndexOf("{"));
+        String absNum = ni.substring(ni.indexOf("<") + 1, ni.lastIndexOf("."));
         int resultKey = Integer.valueOf(absNum) + Integer.valueOf(number);
         Accessory.write(Accessory.CONFIG_PATH, (String.valueOf(resultKey)));
     }

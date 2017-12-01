@@ -92,14 +92,15 @@ public class AuxilarySimpleAutotracing {
                 Iterator<PortInst> itrPi = ni.getPortInsts();
                 while (itrPi.hasNext()) {
                     PortInst piS = itrPi.next();
-                    String port = Accessory.parsePortToPort(piS.toString());
+                    String port = Accessory.parsePortToPortOld(piS.toString());
                     if (port.equals("source")) {
                         addSourceWithSpiceCode(piS, String.valueOf(getPaddrVariableValue(ni)));
                     }
                 }
                 str = "PAD";
                 if (getPaddrVariableValue(ni) != null) {
-                    str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{"; // { needed to avoid being equal PADDR<18 and PADDR<180
+                    //str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{"; // { needed to avoid being equal PADDR<18 and PADDR<180
+                    str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\."; // { needed to avoid being equal PADDR<18 and PADDR<180
 
                 }
                 Accessory.printLog("str = " + str);
@@ -111,7 +112,8 @@ public class AuxilarySimpleAutotracing {
             case "OUTPUT":
                 str = "PAD";
                 if (getPaddrVariableValue(ni) != null) {
-                    str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{";
+                    //str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{";
+                    str = "<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\.";
                 }
                 break;
 
@@ -361,7 +363,7 @@ public class AuxilarySimpleAutotracing {
             case "SPM9":
                 firstOfPair = ni;
                 //String spmStr = Accessory.parsePortToPort(ni.toString());
-                str = "SPM.*" + shortNamePin + "\\'"; // { needed to avoid being equal .X1 and .X10
+                str = "SPM.*" + shortNamePin + "$"; // { needed to avoid being equal .X1 and .X10
                 break;
 
             case "VSS":
@@ -380,8 +382,9 @@ public class AuxilarySimpleAutotracing {
         }
         assert str != null;
         Accessory.printLog("str = " + str);
-        if (getParameter(ni.toString()) != null) {
-            return (getParameter(ni.toString()) + str.substring(3, str.length()));
+        parameter = getParameter(ni.toString());
+        if (parameter != null) {
+            return (parameter + str.substring(3, str.length()));
         }
         return str;
     }
@@ -414,7 +417,9 @@ public class AuxilarySimpleAutotracing {
                 
             case "P_CAU":
             case "CAU":
+                addKey(nextBlock, 6);
                 addKey(nextBlock, 7);
+                addKey(nextBlock, 8);
                 addKey(nextBlock, 15);
                 break;
 
@@ -433,7 +438,9 @@ public class AuxilarySimpleAutotracing {
                     }
                 }
                 //
+                addKey(nextBlock, 6);
                 addKey(nextBlock, 7);
+                addKey(nextBlock, 8);
                 addKey(nextBlock, 15);
                 addKey(nextBlock, 19);
                 addKey(nextBlock, 28);
@@ -449,7 +456,9 @@ public class AuxilarySimpleAutotracing {
                     }
                 }
                 //
+                addKey(nextBlock, 6);
                 addKey(nextBlock, 7);
+                addKey(nextBlock, 8);
                 addKey(nextBlock, 15);
                 addKey(nextBlock, 18);
                 addKey(nextBlock, 28);
@@ -624,7 +633,7 @@ public class AuxilarySimpleAutotracing {
         String parameter;
         String shortName = name.substring(name.indexOf(":") + 1, name.lastIndexOf("{"));
         String shortNamePin;
-        shortNamePin = Accessory.parsePortToPort(pi.toString());
+        shortNamePin = Accessory.parsePortToPortOld(pi.toString());
 
         String str = null;
         switch (shortName) {
@@ -728,7 +737,7 @@ public class AuxilarySimpleAutotracing {
      * number, add it to keyFile.
      */
     public void addKey(String ni, int number) {
-        String absNum = ni.substring(ni.indexOf("<") + 1, ni.lastIndexOf("{"));
+        String absNum = ni.substring(ni.indexOf("<") + 1, ni.lastIndexOf("."));
         int resultKey = Integer.valueOf(absNum) + number;
         Accessory.write(Accessory.CONFIG_PATH, (String.valueOf(resultKey)));
     }
@@ -843,7 +852,7 @@ public class AuxilarySimpleAutotracing {
     private void handleSource(PortInst pi, String inoutNumber) {
         Map<String, String> paramMap = new HashMap<>();
         String VSP = "_" + inoutNumber;
-        String realName = Accessory.parsePortToBlock(pi.toString());
+        String realName = Accessory.parsePortToBlockOld(pi.toString());
         NodeInst ni = pi.getNodeInst();
         Iterator<Variable> itrVar = ni.getParameters();
         while (itrVar.hasNext()) {
@@ -880,6 +889,10 @@ public class AuxilarySimpleAutotracing {
                 source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 "
                         + paramMap.get("VAL");
                 break;
+            default:
+                Accessory.showMessage("Some problems with source " + realName);
+                System.out.println("Some problems with source " + realName);
+                break;
         }
         sourceList.add(source);
     }
@@ -911,15 +924,8 @@ public class AuxilarySimpleAutotracing {
 
     /**
      * Method to get parameter from HashMap, method uses key that is the real
-     * name of block (CAU -> CAU<1111). @
-     *
-     *
-     * param key @param key @
-     *
-
-     *
-     * p
-     * aram key
+     * name of block (CAU -> CAU<1111). 
+     * @param key
      * @return
      */
     public String getParameter(String key) {

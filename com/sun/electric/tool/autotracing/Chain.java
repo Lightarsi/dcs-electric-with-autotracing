@@ -20,7 +20,6 @@
 package com.sun.electric.tool.autotracing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -47,7 +46,7 @@ public class Chain extends Vertex {
     public Chain(String vertsFromGlobalGraph, String label) {
         super(label);
         this.vertsFromGlobalGraph = vertsFromGlobalGraph;
-        String[] connectedVertices = vertsFromGlobalGraph.split(" -- ");
+        String[] connectedVertices = vertsFromGlobalGraph.split(" ");
         for (String connectedVertice : connectedVertices) {
             this.vertsList.add(connectedVertice);
             if (connectedVertice.contains("SPM")) {
@@ -70,14 +69,13 @@ public class Chain extends Vertex {
     public Chain(Chain chain) {
         super(chain.getLabel());
         this.vertsFromGlobalGraph = chain.getLine();
-        String[] connectedVertices = vertsFromGlobalGraph.split(" -- ");
+        String[] connectedVertices = vertsFromGlobalGraph.split(" ");
         for (String connectedVertice : connectedVertices) {
             this.vertsList.add(connectedVertice);
             if (connectedVertice.contains("ION")) {
                 this.isIonChain = true;
             }
         }
-        //this.vertsList.addAll(Arrays.asList(connectedVertices));
         this.weight = chain.getWeight();
     }
 
@@ -157,8 +155,6 @@ public class Chain extends Vertex {
     
     /**
      * Check if vert from vertsList contains ION.
-     *
-     * @param port
      * @return
      */
     public boolean checkForContainsION() {

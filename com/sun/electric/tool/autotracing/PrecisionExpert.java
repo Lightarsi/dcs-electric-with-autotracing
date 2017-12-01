@@ -22,7 +22,6 @@ package com.sun.electric.tool.autotracing;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Iterator;
 
 import com.sun.electric.database.topology.PortInst;

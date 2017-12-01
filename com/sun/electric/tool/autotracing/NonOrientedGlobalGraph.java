@@ -243,7 +243,6 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
      * @param doDelete is true to delete all vertices on the way,
      * @param doWrite
      * @return
-     * @throws java.lang.Exception
      */
     public Pair<String, Integer> deikstra(String startPoint, String niName, String param, boolean doDelete, boolean doWrite) {
         int point = findStartingPoint(startPoint);
@@ -266,7 +265,6 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
      * @param doWrite
      * @param SPMAffected
      * @return
-     * @throws java.lang.Exception
      * @Param doDelete is true to delete all vertices on the way,
      * @Param startPoint shows the edges labels of needed way.
      */
@@ -346,7 +344,6 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         }
 
         if (!endIsFound) {
-            System.out.println("There is no way here.");
             Pair<String, Integer> pair = new Pair<>(null, -1);
             resetVertices();
             return pair;
@@ -502,9 +499,8 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
                 String spl = Accessory.parsePortToBlock(vert);
                 if (spl.split("<")[0].equals("CB")) {                                      // Only CB's verteces should be deleted
                     NonOrientedCBGraph noCBg = getOrCreateLocalGraph(spl);
-                    Accessory.printLog(Accessory.parsePortToBlock(vert) + " toDelete");
-                    noCBg.deleteKeyFromCBGraph(Accessory.parsePortToPort(vert), true);
-                    Accessory.printLog(Accessory.parsePortToPort(vert) + " toDelete");
+                    Accessory.printLog(spl + " toDelete");
+                    noCBg.deleteKeyFromCBGraph(spl, true);
                 }
             }
         }
@@ -622,12 +618,12 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         assert endLabel.length > 1;
         for (int i = 0; i < vertexCount; i++) {
             for (String label : startLabel) {
-                if (Accessory.parsePortAndCut(vertexArray[i].getLabel()).equals(Accessory.parsePortAndCut(label))) {
+                if (vertexArray[i].getLabel().equals(Accessory.parsePortAndCut(label))) {
                     startingPoint = i;
                 }
             }
             for (String label : endLabel) {
-                if (Accessory.parsePortAndCut(vertexArray[i].getLabel()).equals(Accessory.parsePortAndCut(label))) {
+                if (vertexArray[i].getLabel().equals(Accessory.parsePortAndCut(label))) {
                     endingPoint = i;
                 }
             }
@@ -635,7 +631,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         if (startingPoint == -1) {
             for (int i = 0; i < vertexCount; i++) {
                 String vertString = vertexArray[i].getLine();
-                for (String str : vertString.split(" -- ")) {
+                for (String str : vertString.split(" ")) {
                     if (str.equals(startLabel[0])) {
                         startingPoint = i;
                     }
@@ -645,7 +641,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         if (endingPoint == -1) {
             for (int i = 0; i < vertexCount; i++) {
                 String vertString = vertexArray[i].getLine();
-                for (String str : vertString.split(" -- ")) {
+                for (String str : vertString.split(" ")) {
                     if (str.equals(endLabel[0])) {
                         endingPoint = i;
                     }
@@ -844,18 +840,20 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         String elemFrom2EqualCB = null;
         String elemTo2EqualCB = null;
         String graphLabel2EqualCB = null;
-        for (int i = 0; i < vertexArray[currentVertex].searchForCB().length; i += 2) {
-            for (int j = 0; j < vertexArray[closestVertex].searchForCB().length; j += 2) {
-                if (vertexArray[currentVertex].searchForCB()[i].equals(vertexArray[closestVertex].searchForCB()[j])) {
+        String[] currentSearch = vertexArray[currentVertex].searchForCB();
+        String[] closestSearch = vertexArray[closestVertex].searchForCB();
+        for (int i = 0; i < currentSearch.length; i += 2) {
+            for (int j = 0; j < closestSearch.length; j += 2) {
+                if (currentSearch[i].equals(closestSearch[j])) {
                     if (graphLabel != null) {
-                        graphLabel2EqualCB = vertexArray[currentVertex].searchForCB()[i];
-                        elemFrom2EqualCB = vertexArray[currentVertex].searchForCB()[i + 1];
-                        elemTo2EqualCB = vertexArray[closestVertex].searchForCB()[j + 1];
+                        graphLabel2EqualCB = currentSearch[i];
+                        elemFrom2EqualCB = currentSearch[i + 1];
+                        elemTo2EqualCB = closestSearch[j + 1];
                         break;
                     } else {
-                        graphLabel = vertexArray[currentVertex].searchForCB()[i];
-                        elemFrom = vertexArray[currentVertex].searchForCB()[i + 1];
-                        elemTo = vertexArray[closestVertex].searchForCB()[j + 1];
+                        graphLabel = currentSearch[i];
+                        elemFrom = currentSearch[i + 1];
+                        elemTo = closestSearch[j + 1];
                     }
                 }
             }
@@ -1038,9 +1036,8 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         for (int i = 0; i < vertexArray.length; i++) {
             Chain chain = vertexArray[i];
             if (chain != null) {
-                String find = CBname + ".*" + port + "'";
-                String found;
-                if ((found = chain.searchForPattern(find)) != null) {
+                String find = CBname + ".*" + port;
+                if (chain.searchForPattern(find) != null) {
                     deleteVertex(i);
                     return;
                 }
@@ -1055,7 +1052,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         try (BufferedReader graphListBufReader = new BufferedReader(new FileReader(graphList))) {
             String line;
             while ((line = graphListBufReader.readLine()) != null) {
-                addVertex(line, line.split(" -- ")[0]);
+                addVertex(line, line.split(" ")[0]);
             }
         }
     }

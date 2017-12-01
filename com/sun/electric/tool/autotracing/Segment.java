@@ -92,7 +92,7 @@ public class Segment {
         String port;
 
         for (PortInst pi : elementsList) {
-            String name = Accessory.parsePortToBlock(pi.toString());
+            String name = Accessory.parsePortToBlockOld(pi.toString());
             switch (name) {
                 case "RES":
                     res++;
@@ -104,7 +104,7 @@ public class Segment {
                     cap++;
                     break;
                 case "CAU":
-                    port = Accessory.parsePortToPort(pi.toString());
+                    port = Accessory.parsePortToPortOld(pi.toString());
                     switch (port) {
                         case "INP":
                             inp++;
@@ -119,7 +119,7 @@ public class Segment {
                     }
                     break;
                 case "PAU":
-                    port = Accessory.parsePortToPort(pi.toString());
+                    port = Accessory.parsePortToPortOld(pi.toString());
                     switch (port) {
                         case "INP":
                             inp++;
@@ -150,7 +150,7 @@ public class Segment {
         if (pres == 0) {
             if ((res >= 2) && (out == 1)) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         giveAdvice("Use 4-points in " + pi.toString());
                         highlightAdvice(pi);
                         break;
@@ -160,7 +160,7 @@ public class Segment {
             }
             if ((res >= 1) && (out == 1) && (output == 1)) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         giveAdvice("Use 4-points in " + pi.toString());
                         highlightAdvice(pi);
                         break;
@@ -169,7 +169,7 @@ public class Segment {
             }
             if ((out == 1) && (inp == 1) && (res == 1)) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         giveAdvice("Use 4-points in " + pi.toString());
                         highlightAdvice(pi);
                         break;
@@ -178,7 +178,7 @@ public class Segment {
             }
             if ((out == 1) && (inm == 1) && (res == 1)) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         giveAdvice("Use 4-points in " + pi.toString());
                         highlightAdvice(pi);
                         break;
@@ -190,7 +190,7 @@ public class Segment {
         if (cap == 0) {
             if (out_pau == 1) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         if ((Accessory.parsePortToBlock(pi.toString())).equals("PAU")) {
                             giveAdvice("Use shunt " + pi.toString());
                             highlightAdvice(pi);
@@ -206,7 +206,7 @@ public class Segment {
             }
             if ((res >= 2) && (out == 1)) {
                 for (PortInst pi : elementsList) {
-                    if ((Accessory.parsePortToPort(pi.toString())).equals("OUT")) {
+                    if ((Accessory.parsePortToPortOld(pi.toString())).equals("OUT")) {
                         giveAdvice("Use 4-points in " + pi.toString());
                         highlightAdvice(pi);
                         break;

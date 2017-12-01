@@ -137,7 +137,7 @@ public class Automodelling {
             while (itrpp.hasNext()) {
                 PortInst pi = itrpp.next();
                 if (pi.hasConnections()) {
-                    String piStr = Accessory.parsePortToPort(pi.toString());
+                    String piStr = Accessory.parsePortToPortOld(pi.toString());
                     Pattern spm = Pattern.compile("[nopqrstuvw]\\d+\\d*");
                     if (spm.matcher(piStr).matches()) {
                         String num = piStr.substring(1, piStr.length());
