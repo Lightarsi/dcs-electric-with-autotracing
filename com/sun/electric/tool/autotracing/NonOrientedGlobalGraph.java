@@ -497,11 +497,16 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
             vertexArray[count] = null;
             for (String vert : conVerts) {
                 String spl = Accessory.parsePortToBlock(vert);
+                String port = Accessory.parsePortToPort(vert);
                 if (spl.split("<")[0].equals("CB")) {                                      // Only CB's verteces should be deleted
                     NonOrientedCBGraph noCBg = getOrCreateLocalGraph(spl);
                     Accessory.printLog(spl + " toDelete");
-                    noCBg.deleteKeyFromCBGraph(spl, true);
+                    noCBg.deleteKeyFromCBGraph(port, true);
+                    /*if(vertexArray[count].isXYGlobal()) {
+                        noCBg.deleteKeyFromCBGraph(spl, Accessory.parsePortToPort(vert));
+                    }*/
                 }
+                
             }
         }
     }

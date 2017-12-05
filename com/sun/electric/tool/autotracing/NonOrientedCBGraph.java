@@ -85,9 +85,17 @@ public final class NonOrientedCBGraph extends NonOrientedGraph {
             } else {
                 deleteVertexNotForAuto(keyNum);
             }
-            
         }
         refreshLinksMatrix();
+    }
+    
+    /**
+     * Method is deleting verteces from local CB graph according to keys.
+     *
+     * @param key
+     */
+    public void deleteKeyFromCBGraph(String key, String key2) {
+        
     }
 
     /**

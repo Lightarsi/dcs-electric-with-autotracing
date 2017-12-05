@@ -60,7 +60,7 @@ public class SimpleAutotracing {
     private static Scheme scheme;
     private static AuxilarySimpleAutotracing auxisa;
     private static SimpleAutotracing simpleAutotracing;
-    private static ExecutorService service = Executors.newFixedThreadPool(3);
+    private static final ExecutorService service = Executors.newFixedThreadPool(3);
 
     /**
      *
@@ -273,21 +273,18 @@ public class SimpleAutotracing {
         ArrayList<Integer> firstChainsList = nogg.findStartingPointAsList(name);
         if (firstChain == -1) {
             for (Integer z : firstChainsList) {
-                assert z != -1;
-                firstChain = z;
+                if(z != -1) {
+                    firstChain = z;
+                }
                 break;
             }
         }
 
         if (firstChain == -1) {
-            /*for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < 5; j++) {
                 PortInst pi = piArray[0];
-                if (auxisa.getParameter(pi.getNodeInst().toString()) != null) {
-                    nogg2.deikstra(name, auxisa.dealWithBlock(pi.getNodeInst(), pi), param, false, false);
-                } else {
-                    nogg2.deikstra(name, auxisa.dealWithBlock(pi.getNodeInst(), pi), null, false, false);
-                }
-            }*/
+                nogg2.deikstra(name, auxisa.dealWithBlock(pi.getNodeInst(), pi), param, false, false);
+            }
             throw new Exception("SecondChain");
         }
         String firstChainS = nogg.getNameFromPoint(firstChain, name);
@@ -327,11 +324,7 @@ public class SimpleAutotracing {
             if (nextBlock == null) {
                 Accessory.printLog("Increase weight for last net");
                 for (int j = 0; j < 5; j++) {
-                    if (auxisa.getParameter(pi.getNodeInst().toString()) != null) {
-                        nogg2.deikstra(firstChain, secondPort, param, false, false);
-                    } else {
-                        nogg2.deikstra(firstChain, secondPort, null, false, false);
-                    }
+                    nogg2.deikstra(firstChain, secondPort, param, false, false);
                 }
                 throw new Exception("nextBlock");
             }

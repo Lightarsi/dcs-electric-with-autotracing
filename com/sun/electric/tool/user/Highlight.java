@@ -49,9 +49,6 @@ import com.sun.electric.tool.user.ui.EditWindow;
 import com.sun.electric.tool.user.ui.ToolBar;
 import com.sun.electric.tool.user.ui.Util;
 import com.sun.electric.tool.user.ui.WindowFrame;
-import com.sun.electric.tool.autotracing.Accessory;
-import com.sun.electric.tool.autotracing.Constants;
-import com.sun.electric.tool.autotracing.Scheme;
 import com.sun.electric.tool.autotracing.ShowKeyLines;
 import com.sun.electric.util.math.DBMath;
 import com.sun.electric.util.math.FixpTransform;
@@ -77,7 +74,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * A Highlight (or subclass thereof) includes a reference to something to which

@@ -222,7 +222,7 @@ public class Accessory {
     public static String parsePortAndCut(String port) {
         assert port != null;
         String s1 = port.substring(port.indexOf(":")+1, port.indexOf("{"));
-        String s2 = port.substring(port.indexOf(".")+1, port.indexOf("'"));
+        String s2 = port.substring(port.indexOf("."), port.lastIndexOf("'"));
         return (s1+s2);
     }
 

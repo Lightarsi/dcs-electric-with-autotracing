@@ -94,7 +94,7 @@ public class ShowKeyLines {
                 if(originalPi2==null) {
                     return null;
                 }
-                int keyNum = Accessory.parsePortToKey(Accessory.parsePortToPort(originalPi.toString()), Accessory.parsePortToPort(originalPi2.toString()));
+                int keyNum = Accessory.parsePortToKey(Accessory.parsePortToPortOld(originalPi.toString()), Accessory.parsePortToPortOld(originalPi2.toString()));
                 int letterInfluence = Accessory.explainSPMLetter(ppName.substring(0, 1));
                 if (letterInfluence != -1) {
                     keyNum += letterInfluence;

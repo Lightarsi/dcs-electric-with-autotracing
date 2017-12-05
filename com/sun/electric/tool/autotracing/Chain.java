@@ -35,6 +35,7 @@ public class Chain extends Vertex {
     private int weight = 1;
     private boolean affected = false;
     private boolean isIonChain = false;
+    private boolean isXYGlobal = false;
 
     /**
      * Constructor: parse input String to port elements, adding parse return to
@@ -49,6 +50,9 @@ public class Chain extends Vertex {
         String[] connectedVertices = vertsFromGlobalGraph.split(" ");
         for (String connectedVertice : connectedVertices) {
             this.vertsList.add(connectedVertice);
+            if(connectedVertice.endsWith(".X") || (connectedVertice.endsWith(".Y"))) {
+                this.isXYGlobal = true;
+            }
             if (connectedVertice.contains("SPM")) {
                 //weight+=15;
             }
@@ -236,6 +240,10 @@ public class Chain extends Vertex {
             }
         }
         this.affected = true;
+    }
+    
+    public boolean isXYGlobal() {
+        return isXYGlobal;
     }
 
 }
