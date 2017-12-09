@@ -311,7 +311,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
                 }
                 if ((vertexArray[currentVertex].getPathCount()) > (curPathCount = (vertexArray[closestVertex].getPathCount()
                         + weight))) {
-                    
+
                     vertexArray[currentVertex].setPathCount(curPathCount);
                     // maybe should be for each chain, not only with lower path
                     result = vertexArray[currentVertex].searchForPattern(niName);   // method optimized
@@ -506,7 +506,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
                         noCBg.deleteKeyFromCBGraph(spl, Accessory.parsePortToPort(vert));
                     }*/
                 }
-                
+
             }
         }
     }
