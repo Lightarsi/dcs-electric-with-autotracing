@@ -19,18 +19,29 @@
  */
 package com.sun.electric.tool.autotracing;
 
+import com.sun.electric.database.EditingPreferences;
 import com.sun.electric.database.geometry.Poly;
 import com.sun.electric.database.geometry.ScreenPoint;
 import com.sun.electric.database.prototype.PortProto;
+import com.sun.electric.database.topology.ArcInst;
 import com.sun.electric.database.topology.PortInst;
 import com.sun.electric.database.topology.NodeInst;
+import com.sun.electric.technology.ArcProto;
+import com.sun.electric.technology.technologies.Generic;
+import com.sun.electric.technology.technologies.Schematics;
+import com.sun.electric.tool.Job;
+import com.sun.electric.tool.JobException;
 import static com.sun.electric.tool.user.Highlight.drawLine;
 import com.sun.electric.tool.user.User;
+import com.sun.electric.tool.user.UserInterfaceMain;
 import com.sun.electric.tool.user.ui.EditWindow;
+import com.sun.electric.tool.user.ui.WindowFrame;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.font.GlyphVector;
 import java.util.Iterator;
 import java.util.regex.Pattern;
@@ -46,6 +57,8 @@ public class ShowKeyLines {
      * Scheme Singleton for 5400TP035 links.
      */
     private static final Scheme scheme = Scheme.getInstance();
+    private static boolean isFocused = false;
+    private static Pair<PortInst, PortInst> pair = null;
 
     private ShowKeyLines() {
         throw new AssertionError();
@@ -64,9 +77,9 @@ public class ShowKeyLines {
      * @param offY
      * @return
      */
-    public static GlyphVector showKeyLines(PortProto pp, PortInst originalPi, NodeInst ni, Graphics g, EditWindow wnd, Poly poly, long offX, long offY) {
+    public static GlyphVector showKeyLines(PortProto pp, PortInst originalPi, NodeInst ni, Graphics g, EditWindow wnd, Poly poly, long offX, long offY, boolean wired) {
         // keys indication for 5400TP035 project
-        if(originalPi==null) {
+        if (originalPi == null) {
             return null;
         }
         GlyphVector v2 = null;
@@ -91,7 +104,7 @@ public class ShowKeyLines {
                         originalPi2 = next;
                     }
                 }
-                if(originalPi2==null) {
+                if (originalPi2 == null) {
                     return null;
                 }
                 int keyNum = Accessory.parsePortToKey(Accessory.parsePortToPortOld(originalPi.toString()), Accessory.parsePortToPortOld(originalPi2.toString()));
@@ -109,6 +122,13 @@ public class ShowKeyLines {
                 Graphics g2 = g;
                 g2.setColor(Color.YELLOW);
                 drawLine(g, wnd, scr1.getX() + offX, scr1.getY() + offY, scr2.getX() + offX, scr2.getY() + offY);
+                if (!wired) {
+                    isFocused = true;
+                    pair = new Pair<>(originalPi, originalPi2);
+                }
+            } else {
+                isFocused = false;
+                pair = null;
             }
         }
         return v2;
@@ -129,6 +149,51 @@ public class ShowKeyLines {
         if ((originalPi != null) && (scheme.getNetNameFrom(originalPi.toString()) != null)) {
             GlyphVector v3 = wnd.getGlyphs(scheme.getNetNameFrom(originalPi.toString()), font);
             ((Graphics2D) g).drawGlyphVector(v3, (float) scrP.getX() + offX, (float) scrP.getY() + offY + 15f);
+        }
+    }
+
+    public static class MouseListenerForKeys {
+
+        public MouseListenerForKeys() {
+            MouseListener mListen = WindowFrame.getMouseListener();
+        }
+
+        public static void mousePressed(MouseEvent evt) {
+            if ((evt.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
+                if (isFocused && pair != null && Constants.isKeysIndicated() != false) {
+                    ArcProto arc = Generic.tech().universal_arc;
+                    new CreateNewArc(arc, pair.getFirstObject(), pair.getSecondObject(), 0);
+                }
+            }
+        }
+    }
+
+    /**
+     * Class for "CreateNewArc", class realises createNewArc Job to avoid
+     * "database changes are forbidden" error.
+     */
+    private static class CreateNewArc extends Job {
+
+        ArcProto ap;
+        double size;
+        PortInst firstPort;
+        PortInst secondPort;
+
+        public CreateNewArc(ArcProto arc, PortInst firstPort, PortInst secondPort, double size) {
+            super("Create New Arc", User.getUserTool(), Job.Type.CHANGE, null, null, Job.Priority.USER);
+            this.ap = arc;
+            this.firstPort = firstPort;
+            this.secondPort = secondPort;
+            this.size = size;
+            startJob();
+        }
+
+        @Override
+        public boolean doIt() throws JobException {
+            EditingPreferences ep = EditingPreferences.getInstance();
+            ArcInst newArc = ArcInst.makeInstance(ap, ep, firstPort, secondPort);
+            newArc.setLambdaBaseWidth(size);
+            return true;
         }
     }
 }

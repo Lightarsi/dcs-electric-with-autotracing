@@ -1452,7 +1452,7 @@ class HighlightEOBJ extends Highlight {
                         }
                     }
                     // keys indication for 5400TP035 project
-                    GlyphVector v2 = ShowKeyLines.showKeyLines(pp, originalPi, ni, g, wnd, poly, offX, offY);
+                    GlyphVector v2 = ShowKeyLines.showKeyLines(pp, originalPi, ni, g, wnd, poly, offX, offY, wired);
                     
                     if (wired) {
                         Font font = new Font(User.getDefaultFont(), Font.PLAIN, (int) (1.5 * EditWindow.getDefaultFontSize()));
@@ -1467,7 +1467,6 @@ class HighlightEOBJ extends Highlight {
                         
                         // key number for 5400TP035 project
                         ShowKeyLines.drawKeyName(originalPi, scrP, wnd, g, font, offX, offY);
-
                     }
                 }
             }

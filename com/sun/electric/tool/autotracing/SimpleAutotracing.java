@@ -87,7 +87,7 @@ public class SimpleAutotracing {
      * and prepare for work, renew all static objects.
      */
     private void makeTrace() {
-        int imax = 20;               // max amount of iterations
+        int imax = 5;               // max amount of iterations
 
         resetStatics();
         nogg = new NonOrientedGlobalGraph("EighteenAugust");
@@ -291,6 +291,7 @@ public class SimpleAutotracing {
         assert firstChainS != null;
 
         for (PortInst pi : piArray) {
+            System.out.println("piArray " + pi.toString());
             if (pi.toString().contains("VSS")) {
                 if (isPortUsed(pi)) {
                     //continue;
@@ -302,12 +303,11 @@ public class SimpleAutotracing {
             }
             String secondPort = auxisa.dealWithBlock(pi.getNodeInst(), pi);
             String nextBlock;
-            firstChainS = null;
-
+            
             Accessory.timeStart("s");
             firstChain = deikstraMultiThreads(firstChainsList, pi, secondPort, param);
             Accessory.timeStart("s");
-
+        
             firstChainS = nogg.getNameFromPoint(firstChain, name);
             if (firstChainS == null) {
                 throw new Exception("So sad. Can't do autotracing through this way.");
@@ -395,6 +395,9 @@ public class SimpleAutotracing {
      * Method to use getKeyFromMap method without exceptions.
      */
     private void addKeyFromMap(String nextBlock) throws IOException {
+        if(!nextBlock.contains("<")) { // don't play with non-sf-blocks (non-extist < in name)
+            return;
+        }
         getKeyFromMap(nextBlock, nextBlock.substring(0, nextBlock.indexOf("<")));
     }
 
@@ -403,9 +406,6 @@ public class SimpleAutotracing {
      * using Map from file, e.g. PADDR.PX1 -> n5-n6 -> key(2).
      */
     private String getKeyFromMap(String fullBlock, String blockName) throws IOException {
-        if (blockName.contains("ION")) {
-            return null; // one more bad decision, should be changed later.
-        }
         String path = Accessory.PATH + "/autotracing/";
         path += blockName;
         path += ".trc";

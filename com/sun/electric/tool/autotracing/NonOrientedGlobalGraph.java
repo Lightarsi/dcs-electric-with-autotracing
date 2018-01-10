@@ -344,12 +344,14 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         }
 
         if (!endIsFound) {
+            System.out.println("wtf1");
             Pair<String, Integer> pair = new Pair<>(null, -1);
             resetVertices();
             return pair;
         }
         deikstra_backway_with_delete(endPoint, startPoint, doDelete, doWrite, SPMAffected);
         resetVertices();
+        System.out.println("wtf2");
         Pair<String, Integer> pair = new Pair<>(lastResult, lastCount);
         return pair;
     }
@@ -1041,8 +1043,8 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         for (int i = 0; i < vertexArray.length; i++) {
             Chain chain = vertexArray[i];
             if (chain != null) {
-                String find = CBname + ".*" + port;
-                if (chain.searchForPattern(find) != null) {
+                String find = CBname + "\\." + port;
+                if (chain.searchForPatternMatch(find) != null) {
                     deleteVertex(i);
                     return;
                 }

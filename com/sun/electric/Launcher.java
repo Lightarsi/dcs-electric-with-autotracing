@@ -53,34 +53,34 @@ import com.sun.electric.tool.user.menus.ToolMenu;
  * The new ClassLoader is aware of jars with Electric plugins and dependencies.
  */
 public final class Launcher {
+
     private static final boolean enableAssertions = true;
     private static final Logger logger = LoggerFactory.getLogger(Launcher.class);
 //    private static LocalLogger logger = new LocalLogger(Launcher.class);
 
-    private static final String[] propertiesToCopy = { "user.home" };
+    private static final String[] propertiesToCopy = {"user.home"};
 
     private Launcher() {
     }
-	
-	private static void checkForUpdates() {
-		try {
-			ToolMenu.checkUpdates(false); 
-		} catch(Exception e){
-			System.out.println("Updation proccess failed...");
-		}
-	}
+
+    /*private static void checkForUpdates() {
+        try {
+            ToolMenu.checkUpdates(false);
+        } catch (Exception e) {
+            System.out.println("Updation proccess failed...");
+        }
+    }*/
 
     /**
      * The main entry point of Electric. The "main" method in this class checks
      * to make sure that the JVM has enough memory. If not, it invokes a new JVM
      * with the proper amount. If so, it goes directly to Main.main to start
      * Electric.
-     * 
-     * @param args
-     *            the arguments to the program.
+     *
+     * @param args the arguments to the program.
      */
     public static void main(String[] args) {
-		checkForUpdates();
+        //checkForUpdates();
         // ignore launcher if specified to do so
         for (int i = 0; i < args.length; i++) {
             String str = args[i];
@@ -98,8 +98,9 @@ public final class Launcher {
 
         String program = "java";
         String javaHome = System.getProperty("java.home");
-        if (javaHome != null)
+        if (javaHome != null) {
             program = javaHome + File.separator + "bin" + File.separator + program;
+        }
 
         if (args.length >= 2 && args[0].equals("-regression") || args.length >= 3 && args[0].equals("-debug")
                 && args[1].equals("-regression") || args.length >= 4 && args[0].equals("-threads")
@@ -116,45 +117,49 @@ public final class Launcher {
         int maxPerm = (int) (getPermGenMax() / 1000000);
         int maxMemWanted = getUserInt(StartupPrefs.MemorySizeKey, StartupPrefs.MemorySizeDef);
         int maxPermWanted = getUserInt(StartupPrefs.PermSizeKey, StartupPrefs.PermSizeDef);
-        if (maxMemWanted <= maxMem && (maxPermWanted == 0 || maxPermWanted <= maxPerm) ||
-        	Arrays.asList(args).contains("-pipeserver"))
-        {
+        if (maxMemWanted <= maxMem && (maxPermWanted == 0 || maxPermWanted <= maxPerm)
+                || Arrays.asList(args).contains("-pipeserver")) {
             // already have the desired amount of memory: just start Electric
             loadAndRunMain(args, true);
             return;
         }
 
         // Start Electric in subprocess
-
         // build the command line for reinvoking Electric
         List<String> procArgs = new ArrayList<String>();
         procArgs.add(program);
         procArgs.add("-cp");
         procArgs.add(getJarLocation());
         procArgs.add("-ss2m");
-        if (enableAssertions)
+        if (enableAssertions) {
             procArgs.add("-ea"); // enable assertions
+        }
         procArgs.add("-mx" + maxMemWanted + "m");
-        if (maxPermWanted > 0)
+        if (maxPermWanted > 0) {
             procArgs.add("-XX:MaxPermSize=" + maxPermWanted + "m");
+        }
         for (int i = 0; i < propertiesToCopy.length; i++) {
             String propValue = System.getProperty(propertiesToCopy[i]);
             if (propValue != null && propValue.length() > 0) {
-                if (propValue.indexOf(' ') >= 0)
+                if (propValue.indexOf(' ') >= 0) {
                     propValue = "\"" + propValue + "\"";
+                }
                 procArgs.add("-D" + propertiesToCopy[i] + "=" + propValue);
             }
         }
         procArgs.add("com.sun.electric.Launcher");
         procArgs.add("-NOMINMEM");
-        for (int i = 0; i < args.length; i++)
+        for (int i = 0; i < args.length; i++) {
             procArgs.add(args[i]);
+        }
 
-        if (maxMemWanted > maxMem)
+        if (maxMemWanted > maxMem) {
             logger.info("Current Java memory limit of {}MEG is too small, rerunning Electric with a memory limit of {}MEG",
                     maxMem, maxMemWanted);
-        if (maxPermWanted > 0)
+        }
+        if (maxPermWanted > 0) {
             logger.info("Setting maximum permanent space (2nd GC) to {}MEG", maxPermWanted);
+        }
         ProcessBuilder processBuilder = new ProcessBuilder(procArgs);
         try {
             processBuilder.start();
@@ -166,19 +171,17 @@ public final class Launcher {
             logger.warn("Error starting Electric subprocess", e);
             loadAndRunMain(args, false);
         }
-		
-		
+
     }
 
-    public static long getPermGenMax()
-	{
-		for (MemoryPoolMXBean mx : ManagementFactory.getMemoryPoolMXBeans())
-		{
-			if (mx.getName().indexOf("Perm Gen") >= 0)
-				return mx.getUsage().getMax();
-		}
-		return 0;
-	}
+    public static long getPermGenMax() {
+        for (MemoryPoolMXBean mx : ManagementFactory.getMemoryPoolMXBeans()) {
+            if (mx.getName().indexOf("Perm Gen") >= 0) {
+                return mx.getUsage().getMax();
+            }
+        }
+        return 0;
+    }
 
     private static String[] removeArg(String[] args, String option) {
         List<String> tmp = new ArrayList<String>();
@@ -202,13 +205,14 @@ public final class Launcher {
     /**
      * Method to return a String that gives the path to the Electric JAR file.
      * If the path has spaces in it, it is quoted.
-     * 
+     *
      * @return the path to the Electric JAR file.
      */
     public static String getJarLocation() {
         String jarPath = System.getProperty("java.class.path", ".");
-        if (jarPath.indexOf(' ') >= 0)
+        if (jarPath.indexOf(' ') >= 0) {
             jarPath = "\"" + jarPath + "\"";
+        }
         return jarPath;
     }
 
@@ -235,8 +239,9 @@ public final class Launcher {
         }
         String script = args[regressionPos + 1];
 
-        for (int i = regressionPos + 2; i < args.length; i++)
+        for (int i = regressionPos + 2; i < args.length; i++) {
             javaOptions.add(args[i]);
+        }
         Process process = null;
         try {
             process = invokePipeserver(javaOptions, electricOptions);
@@ -246,8 +251,8 @@ public final class Launcher {
         }
         initClasspath(true);
         boolean result = ((Boolean) callByReflection(ClassLoader.getSystemClassLoader(),
-                "com.sun.electric.tool.Regression", "runScript", new Class[] { Process.class, String.class },
-                null, new Object[] { process, script })).booleanValue();
+                "com.sun.electric.tool.Regression", "runScript", new Class[]{Process.class, String.class},
+                null, new Object[]{process, script})).booleanValue();
         return result;
     }
 
@@ -256,8 +261,9 @@ public final class Launcher {
         List<String> procArgs = new ArrayList<String>();
         String program = "java";
         String javaHome = System.getProperty("java.home");
-        if (javaHome != null)
+        if (javaHome != null) {
             program = javaHome + File.separator + "bin" + File.separator + program;
+        }
 
         procArgs.add(program);
         procArgs.add("-ea");
@@ -269,8 +275,9 @@ public final class Launcher {
         procArgs.addAll(electricOptions);
         procArgs.add("-pipeserver");
         String command = "";
-        for (String arg : procArgs)
+        for (String arg : procArgs) {
             command += " " + arg;
+        }
         logger.info("exec: {}", command);
 
         return new ProcessBuilder(procArgs).start();
@@ -286,8 +293,8 @@ public final class Launcher {
         args = getAdditionalFolder(args);
 
         initClasspath(loadDependencies);
-        callByReflection(pluginClassLoader, "com.sun.electric.Main", "main", new Class[] { String[].class },
-                null, new Object[] { args });
+        callByReflection(pluginClassLoader, "com.sun.electric.Main", "main", new Class[]{String[].class},
+                null, new Object[]{args});
     }
 
     private static void initClasspath(boolean loadDependencies) {
@@ -303,7 +310,7 @@ public final class Launcher {
             pluginClassLoader.setDefaultAssertionStatus(true);
         }
     }
-    
+
     private static void initClasspath(URL[] urls, ClassLoader launcherLoader) {
         for (URL url : urls) {
             Object result = callByReflection(launcherLoader, "java.net.URLClassLoader", "addURL",
@@ -426,6 +433,7 @@ public final class Launcher {
     }
 
     private static class EClassLoader extends URLClassLoader {
+
         private EClassLoader(URL[] urls, ClassLoader parent) {
             super(urls, parent);
         }
@@ -460,6 +468,5 @@ public final class Launcher {
             return super.loadClass(name, resolve);
         }
     }
-	
-	
+
 }

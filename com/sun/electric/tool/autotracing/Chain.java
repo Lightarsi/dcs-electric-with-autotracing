@@ -50,11 +50,8 @@ public class Chain extends Vertex {
         String[] connectedVertices = vertsFromGlobalGraph.split(" ");
         for (String connectedVertice : connectedVertices) {
             this.vertsList.add(connectedVertice);
-            if(connectedVertice.endsWith(".X") || (connectedVertice.endsWith(".Y"))) {
+            if (connectedVertice.endsWith(".X") || (connectedVertice.endsWith(".Y"))) {
                 this.isXYGlobal = true;
-            }
-            if (connectedVertice.contains("SPM")) {
-                //weight+=15;
             }
             if (connectedVertice.contains("ION")) {
                 this.isIonChain = true;
@@ -76,6 +73,9 @@ public class Chain extends Vertex {
         String[] connectedVertices = vertsFromGlobalGraph.split(" ");
         for (String connectedVertice : connectedVertices) {
             this.vertsList.add(connectedVertice);
+            if (connectedVertice.endsWith(".X") || (connectedVertice.endsWith(".Y"))) {
+                this.isXYGlobal = true;
+            }
             if (connectedVertice.contains("ION")) {
                 this.isIonChain = true;
             }
@@ -124,11 +124,29 @@ public class Chain extends Vertex {
      * @param blockPiece
      * @return
      */
-    public String searchForPattern(String blockPiece) {
+    public String searchForPattern(String blockPiece) {         /// !!!! /// MAYBE SHOULD BE USED MATCHES INSTEAD OF FIND
         Pattern p = Pattern.compile(blockPiece);
 
         for (String vert : vertsList) {
             if (p.matcher(vert).find()) {
+                return vert;
+            }
+        }
+        return null;
+    }
+    
+     /**
+     * Method implements searching mechanism inside chain, used in external
+     * autotracing scheme.
+     *
+     * @param blockPiece
+     * @return
+     */
+    public String searchForPatternMatch(String blockPiece) {         /// !!!! /// MAYBE SHOULD BE USED MATCHES INSTEAD OF FIND
+        Pattern p = Pattern.compile(blockPiece);
+
+        for (String vert : vertsList) {
+            if (p.matcher(vert).matches()) {
                 return vert;
             }
         }
@@ -156,9 +174,10 @@ public class Chain extends Vertex {
         }
         return false;
     }
-    
+
     /**
      * Check if vert from vertsList contains ION.
+     *
      * @return
      */
     public boolean checkForContainsION() {
@@ -233,7 +252,7 @@ public class Chain extends Vertex {
 
     public void setAffected() {
         Iterator<String> vertItr = vertsList.iterator();
-        while(vertItr.hasNext()) {
+        while (vertItr.hasNext()) {
             String vert = vertItr.next();
             if ((!vert.contains("CB")) && (!vert.contains("SPM"))) {
                 vertItr.remove();
@@ -241,7 +260,7 @@ public class Chain extends Vertex {
         }
         this.affected = true;
     }
-    
+
     public boolean isXYGlobal() {
         return isXYGlobal;
     }
