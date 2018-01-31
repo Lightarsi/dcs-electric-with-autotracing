@@ -87,7 +87,7 @@ public class SimpleAutotracing {
      * and prepare for work, renew all static objects.
      */
     private void makeTrace() {
-        int imax = 5;               // max amount of iterations
+        int imax = 25;               // max amount of iterations
 
         resetStatics();
         nogg = new NonOrientedGlobalGraph("EighteenAugust");
