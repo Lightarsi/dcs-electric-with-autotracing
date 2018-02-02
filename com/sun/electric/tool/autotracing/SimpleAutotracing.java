@@ -97,6 +97,7 @@ public class SimpleAutotracing {
         } catch (Exception e) {
             Accessory.showMessage("First step failed.");
             Accessory.printLog("First step failed");
+            assert false;
         }
         resetStatics();
         nogg.applyWeightChanges();
@@ -408,6 +409,9 @@ public class SimpleAutotracing {
     private String getKeyFromMap(String fullBlock, String blockName) throws IOException {
         String path = Accessory.PATH + "/autotracing/";
         path += blockName;
+        if(blockName.equals("SPM")) {
+            return null;
+        }
         path += ".trc";
         String portName = Accessory.parsePortToPort(fullBlock);
         File mapFile = new File(path);

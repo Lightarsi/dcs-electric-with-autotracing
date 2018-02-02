@@ -157,9 +157,9 @@ public class Autotracing extends Tool {
 
         @Override
         public boolean doIt() throws JobException {
-            createAndShowGUI(true);
+            //createAndShowGUI(true);
             SimpleAutotracing.getSimpleAutotracing().startTrace();
-            createAndShowGUI(false);
+            //createAndShowGUI(false);
             return true;
         }
 

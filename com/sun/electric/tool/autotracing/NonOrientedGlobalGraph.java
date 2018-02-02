@@ -285,6 +285,20 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         vertexArray[currentVertex].setPathCount(0);
         heap.add(vertexArray[currentVertex].getPathCount(), currentVertex);
 
+        // we should check first Chain first
+        result = vertexArray[currentVertex].searchForPattern(niName);   // method optimized
+        if (!checkForUsed(result, niName)) {                            // if result == 0, checkForUsed returns false
+            if ((result != null)) {
+                count = vertexArray[currentVertex].getPathCount();
+                if (lastCount == -1) {
+                    lastCount = count;
+                    endPoint = currentVertex;
+                    endIsFound = true;
+                    lastResult = result;
+                } 
+            }
+        }
+
         while (((closestVertex = heap.getMinKey()) != -1)) {
             vertexArray[closestVertex].setVisited(true);
             Integer[] a = getCloseVerteces(closestVertex);
@@ -344,14 +358,12 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         }
 
         if (!endIsFound) {
-            System.out.println("wtf1");
             Pair<String, Integer> pair = new Pair<>(null, -1);
             resetVertices();
             return pair;
         }
         deikstra_backway_with_delete(endPoint, startPoint, doDelete, doWrite, SPMAffected);
         resetVertices();
-        System.out.println("wtf2");
         Pair<String, Integer> pair = new Pair<>(lastResult, lastCount);
         return pair;
     }

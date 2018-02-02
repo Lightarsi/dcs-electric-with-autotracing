@@ -252,7 +252,7 @@ public class AuxilarySimpleAutotracing {
                         str = "PAU.*\\.PX[123]";
                         break;
                     case "OUT":
-                        str = "PAU.*\\.PV[123]";
+                        str = "PAU.*\\.PS[123]";
                         break;
                 }
                 break;
@@ -414,7 +414,7 @@ public class AuxilarySimpleAutotracing {
             case "OUTPUT_DDR":
                 addKey(nextBlock, 1);
                 break;
-                
+
             case "P_CAU":
             case "CAU":
                 addKey(nextBlock, 6);
@@ -525,7 +525,8 @@ public class AuxilarySimpleAutotracing {
                 break;
 
             case "CAP":
-                SimpleAutotracing.getSimpleAutotracing().handleAuxilaryCapKeys(nextBlock, ni);  /* THAT IS VERY WRONG SOLUTION */ 
+                SimpleAutotracing.getSimpleAutotracing().handleAuxilaryCapKeys(nextBlock, ni);
+                /* THAT IS VERY WRONG SOLUTION */
                 break;
 
             case "P_RES":
@@ -565,6 +566,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
+                            assert false;
                     }
                 } else if (index.equals("PQ") || index.equals("PR")) {
                     switch (var) {
@@ -596,6 +598,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
+                            assert false;
                     }
                 }
 
@@ -809,8 +812,17 @@ public class AuxilarySimpleAutotracing {
      * OA nodeInst.
      */
     private int OAVariableAnalysis(String[] a) {
+        try {
+            if ((Integer.valueOf(a[0]) == 0) || (Integer.valueOf(a[1]) == 0)) {
+                Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
+                assert false;
+            }
+        } catch(Exception e) {
+            // just pass if there is 7.3 or smth.
+        }
+
         float f = 128 / (Float.valueOf(a[0]) + Float.valueOf(a[1]));
-        int i = (int) (f * Float.valueOf(a[0]));
+        int i = Math.round(f * Float.valueOf(a[0]));
         return i;
     }
 
@@ -925,7 +937,9 @@ public class AuxilarySimpleAutotracing {
     /**
      * Method to get parameter from HashMap, method uses key that is the real
      * name of block (CAU -> CAU<1111). 
-     * @param key
+     * @
+     *
+     * param key
      * @return
      */
     public String getParameter(String key) {
