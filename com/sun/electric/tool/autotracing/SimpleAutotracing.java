@@ -54,6 +54,8 @@ public class SimpleAutotracing {
     private HashSet<String> usedNodeList = new HashSet<>();
     private NonOrientedGlobalGraph nogg;
     private NonOrientedGlobalGraph nogg2;
+    
+    private boolean exitPressed = false;
 
     private final Object lock = new Object();
 
@@ -61,6 +63,7 @@ public class SimpleAutotracing {
     private static AuxilarySimpleAutotracing auxisa;
     private static SimpleAutotracing simpleAutotracing;
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
+    
 
     /**
      *
@@ -87,8 +90,7 @@ public class SimpleAutotracing {
      * and prepare for work, renew all static objects.
      */
     private void makeTrace() {
-        int imax = 25;               // max amount of iterations
-
+        int imax = 45;               // max amount of iterations
         resetStatics();
         nogg = new NonOrientedGlobalGraph("EighteenAugust");
 
@@ -104,6 +106,11 @@ public class SimpleAutotracing {
         nogg2 = new NonOrientedGlobalGraph(nogg);
 
         for (int i = 0; i < imax; i++) {
+            if(exitPressed) {
+                exitPressed = false;
+                assert false;
+            }
+            System.out.println("Step " + i);
             boolean withIncrease = false;
             //if(i!=0) {
             nogg = new NonOrientedGlobalGraph(nogg2);
@@ -530,6 +537,10 @@ public class SimpleAutotracing {
 
         Automodelling.writeSPMkeys();
         Automodelling.modelScheme();
+    }
+    
+    public void setExitPressed() {
+        exitPressed = true;
     }
 
 }

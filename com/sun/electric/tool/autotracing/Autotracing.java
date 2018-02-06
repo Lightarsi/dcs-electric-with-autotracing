@@ -27,6 +27,8 @@ import java.io.FileReader;
 import com.sun.electric.tool.Job;
 import com.sun.electric.tool.JobException;
 import com.sun.electric.tool.Tool;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
@@ -157,9 +159,9 @@ public class Autotracing extends Tool {
 
         @Override
         public boolean doIt() throws JobException {
-            //createAndShowGUI(true);
+            createAndShowGUI(true);
             SimpleAutotracing.getSimpleAutotracing().startTrace();
-            //createAndShowGUI(false);
+            createAndShowGUI(false);
             return true;
         }
 
@@ -178,6 +180,14 @@ public class Autotracing extends Tool {
             if (start) {
                 frame = new JFrame("Progress");
                 frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                frame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        e.getWindow().dispose();
+                        SimpleAutotracing.getSimpleAutotracing().setExitPressed();
+                        Accessory.showMessage("Autotracing will be stopped after 1 step.");
+                    }
+                });
 
                 JLabel label = new JLabel("Please wait...");
                 frame.getContentPane().add(label);
