@@ -90,6 +90,7 @@ public class SimpleAutotracing {
      * and prepare for work, renew all static objects.
      */
     private void makeTrace() {
+        exitPressed = false;
         int imax = 45;               // max amount of iterations
         resetStatics();
         nogg = new NonOrientedGlobalGraph("EighteenAugust");
@@ -99,6 +100,7 @@ public class SimpleAutotracing {
         } catch (Exception e) {
             Accessory.showMessage("First step failed.");
             Accessory.printLog("First step failed");
+            Autotracing.getAutotracingTool().createAndShowGUI(false);
             assert false;
         }
         resetStatics();
@@ -131,6 +133,7 @@ public class SimpleAutotracing {
             }
             if (i == (imax - 1)) {
                 Accessory.showMessage("Autotracing proccess failed.");
+                Autotracing.getAutotracingTool().createAndShowGUI(false);
                 return;
             }
         }

@@ -574,6 +574,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
+                            Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;
                     }
                 } else if (index.equals("PQ") || index.equals("PR")) {
@@ -606,6 +607,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
+                            Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;
                     }
                 }
@@ -667,6 +669,7 @@ public class AuxilarySimpleAutotracing {
                             index = "PV";
                             break;
                         default:
+                            Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;
                             break;
                     }
@@ -693,6 +696,7 @@ public class AuxilarySimpleAutotracing {
                             index = "PQ";
                             break;
                         default:
+                            Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;
                             break;
                     }
@@ -725,6 +729,7 @@ public class AuxilarySimpleAutotracing {
                                     index = "PQ";
                                     break;
                                 default:
+                                    Autotracing.getAutotracingTool().createAndShowGUI(false);
                                     assert false;
                                     break;
                             }
@@ -769,6 +774,7 @@ public class AuxilarySimpleAutotracing {
             }
             if (validNum == false) {
                 Accessory.showMessage("Not valid in/out number.");
+                Autotracing.getAutotracingTool().createAndShowGUI(false);
                 assert false;
             }
         }
@@ -823,6 +829,7 @@ public class AuxilarySimpleAutotracing {
         try {
             if ((Integer.valueOf(a[0]) == 0) || (Integer.valueOf(a[1]) == 0)) {
                 Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
+                Autotracing.getAutotracingTool().createAndShowGUI(false);
                 assert false;
             }
         } catch (Exception e) {

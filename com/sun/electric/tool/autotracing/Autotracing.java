@@ -37,6 +37,8 @@ import javax.swing.*;
  * just links for other classes' methods (MV model)
  */
 public class Autotracing extends Tool {
+    
+    private static MakeTrace makeObject;
 
     /**
      * the Autotracing tool.
@@ -121,7 +123,7 @@ public class Autotracing extends Tool {
      * Link to MakeTrace method
      */
     public static void makeTrace() {
-        new MakeTrace();
+        makeObject = new MakeTrace();
     }
 
     /**
@@ -143,6 +145,10 @@ public class Autotracing extends Tool {
             line[1] = graphListBufReader.readLine();
         }
         return line;
+    }
+    
+    public void createAndShowGUI(boolean start) {
+        makeObject.createAndShowGUI(start);
     }
 
     /**
@@ -176,7 +182,7 @@ public class Autotracing extends Tool {
          * @Param start = true to show and false to drop progress bar, SHOULD BE
          * UNIT TEST HERE
          */
-        private void createAndShowGUI(boolean start) {
+        public void createAndShowGUI(boolean start) {
             if (start) {
                 frame = new JFrame("Progress");
                 frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
