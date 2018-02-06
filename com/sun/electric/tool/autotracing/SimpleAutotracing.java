@@ -409,6 +409,7 @@ public class SimpleAutotracing {
     private String getKeyFromMap(String fullBlock, String blockName) throws IOException {
         String path = Accessory.PATH + "/autotracing/";
         path += blockName;
+        // SPM shouldn't add internal keys, avoid it
         if(blockName.equals("SPM")) {
             return null;
         }
@@ -492,7 +493,7 @@ public class SimpleAutotracing {
      * Method to commit autotracing step results, setting Parameter of NodeInst
      * when you know where trace came.
      */
-    private void addNextNode(PortInst pi, String nextBlock) {
+    private void addNextNode(PortInst pi, String nextBlock) throws Exception {
         NodeInst ni = pi.getNodeInst();
         auxisa.setParameter(ni, nextBlock);
         auxisa.setKeys(ni, nextBlock);

@@ -130,7 +130,7 @@ public class AuxilarySimpleAutotracing {
                         break;
                     case "OUT":
                     case "OUT_P":
-                        str = "CAU.*PV[123]";
+                        str = "CAU.*P[VW][123]";
                         break;
                 }
                 break;
@@ -144,7 +144,7 @@ public class AuxilarySimpleAutotracing {
                         str = "CAU.*\\.PY[123]";
                         break;
                     case "OUT":
-                        str = "CAU.*\\.PV[123]";
+                        str = "CAU.*\\.P[VW][123]";
                         break;
                 }
                 break;
@@ -158,7 +158,7 @@ public class AuxilarySimpleAutotracing {
                         str = "CAU.*\\.PZ[123]";
                         break;
                     case "OUT":
-                        str = "CAU.*\\.PV[123]";
+                        str = "CAU.*\\.P[VW][123]";
                         break;
                 }
                 break;
@@ -172,7 +172,7 @@ public class AuxilarySimpleAutotracing {
                         str = "CAU.*\\.PY[123]";
                         break;
                     case "OUT":
-                        str = "CAU.*\\.PV[123]";
+                        str = "CAU.*\\.P[VW][123]";
                         break;
                 }
                 break;
@@ -190,7 +190,7 @@ public class AuxilarySimpleAutotracing {
                         break;
                     case "OUT_P":
                     case "OUT":
-                        str = "PAU.*\\.PV[123]";
+                        str = "PAU.*\\.P[VW][123]";
                         break;
                 }
                 break;
@@ -204,10 +204,10 @@ public class AuxilarySimpleAutotracing {
                         str = "PAU.*\\.PX[123]";
                         break;
                     case "OUTP":
-                        str = "PAU.*\\.PV[123]";
+                        str = "PAU.*\\.P[VW][123]";
                         break;
                     case "OUTM":
-                        str = "PAU.*\\.PU[123]";
+                        str = "PAU.*\\.P[UR][123]";
                         break;
                 }
                 break;
@@ -221,10 +221,10 @@ public class AuxilarySimpleAutotracing {
                         str = "PAU.*\\.PO[123]";
                         break;
                     case "OUTM":
-                        str = "PAU.*\\.PR[123]";
+                        str = "PAU.*\\.P[UR][123]";
                         break;
                     case "OUTP":
-                        str = "PAU.*\\.PW[123]";
+                        str = "PAU.*\\.P[VW][123]";
                         break;
                 }
                 break;
@@ -396,7 +396,7 @@ public class AuxilarySimpleAutotracing {
      * @param ni
      * @param nextBlock
      */
-    public void setKeys(NodeInst ni, String nextBlock) {
+    public void setKeys(NodeInst ni, String nextBlock) throws Exception {
         String name = ni.toString();
         boolean[] r;
         int tmp;
@@ -421,11 +421,13 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 7);
                 addKey(nextBlock, 8);
                 addKey(nextBlock, 15);
+                addKey(nextBlock, 28);
                 break;
 
             case "CAU_COMP":
                 addKey(nextBlock, 15);
                 addKey(nextBlock, 17);
+                addKey(nextBlock, 28);
                 break;
 
             case "CAU_POS_FB":
@@ -468,11 +470,15 @@ public class AuxilarySimpleAutotracing {
             case "PAU":
                 addKey(nextBlock, 48);
                 addKey(nextBlock, 6);
+                addKey(nextBlock, 24);
+                addKey(nextBlock, 41);
                 break;
 
             case "PAU_DIFF":
                 addKey(nextBlock, 49);
                 addKey(nextBlock, 6);
+                addKey(nextBlock, 24);
+                addKey(nextBlock, 41);
                 break;
 
             case "PAU_DIFF_FB":
@@ -516,12 +522,14 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 6);
                 addKey(nextBlock, 33);
                 addKey(nextBlock, 48);
+                addKey(nextBlock, 24);
                 addKey(nextBlock, 41);
                 break;
 
             case "PAU_COMP":
                 addKey(nextBlock, 6);
                 addKey(nextBlock, 8);
+                addKey(nextBlock, 41);
                 break;
 
             case "CAP":
@@ -811,18 +819,25 @@ public class AuxilarySimpleAutotracing {
      * Method to understand what keys should be taken from Variable's value in
      * OA nodeInst.
      */
-    private int OAVariableAnalysis(String[] a) {
+    private int OAVariableAnalysis(String[] a) throws Exception {
         try {
             if ((Integer.valueOf(a[0]) == 0) || (Integer.valueOf(a[1]) == 0)) {
                 Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
                 assert false;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // just pass if there is 7.3 or smth.
         }
+        int i;
+        try {
+            float f = 128 / (Float.valueOf(a[0]) + Float.valueOf(a[1]));
+            i = Math.round(f * Float.valueOf(a[0]));
+        } catch (Exception e) {
+            Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
+            assert false;
+            throw new Exception("Incorrect parameters values in CAU/PAU block");
+        }
 
-        float f = 128 / (Float.valueOf(a[0]) + Float.valueOf(a[1]));
-        int i = Math.round(f * Float.valueOf(a[0]));
         return i;
     }
 
@@ -936,11 +951,10 @@ public class AuxilarySimpleAutotracing {
 
     /**
      * Method to get parameter from HashMap, method uses key that is the real
-     * name of block (CAU -> CAU<1111). 
-     * @
+     * name of block (CAU -> CAU<1111). @
      *
-     * param key
-     * @return
+     *
+     * param key @return
      */
     public String getParameter(String key) {
         return keyHashMap.get(key);
