@@ -854,11 +854,19 @@ public class AuxilarySimpleAutotracing {
     /**
      * Method to get Variable's value from INPUT/OUTPUT nodeInst.
      */
-    private Integer getPaddrVariableValue(NodeInst ni) {
+    private Integer getPaddrVariableValue(NodeInst ni) throws FunctionalException {
         Iterator<Variable> itrVar = ni.getParameters();
         Variable var = itrVar.next();
         String value = var.getObject().toString();
-        Integer i = Integer.valueOf(value);
+        Integer i;
+        try {
+            i = Integer.valueOf(value);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Accessory.showMessage("Not valid in/out number.");
+            throw new FunctionalException("Not valid in/out number.");
+        }
+        
         if (i != 0) {
             return i;
         }
