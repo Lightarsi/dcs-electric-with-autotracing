@@ -78,7 +78,7 @@ public class AuxilarySimpleAutotracing {
      * @return
      * @throws java.lang.Exception
      */
-    public String dealWithBlock(NodeInst ni, PortInst pi) throws Exception {
+    public String dealWithBlock(NodeInst ni, PortInst pi) throws IOException, StepFailedException, FunctionalException {
         String name = ni.toString();
         String parameter;
         String shortName = name.substring(name.indexOf(":") + 1, name.lastIndexOf("{"));
@@ -99,7 +99,6 @@ public class AuxilarySimpleAutotracing {
                 }
                 str = "PAD";
                 if (getPaddrVariableValue(ni) != null) {
-                    //str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{"; // { needed to avoid being equal PADDR<18 and PADDR<180
                     str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\."; // { needed to avoid being equal PADDR<18 and PADDR<180
 
                 }
@@ -112,7 +111,6 @@ public class AuxilarySimpleAutotracing {
             case "OUTPUT":
                 str = "PAD";
                 if (getPaddrVariableValue(ni) != null) {
-                    //str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\{";
                     str = "<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\.";
                 }
                 break;
@@ -259,7 +257,7 @@ public class AuxilarySimpleAutotracing {
 
             case "CAP":
                 if (pi == null) {
-                    throw new Exception("Null reference in dealWithBlock.");
+                    throw new StepFailedException("Null reference in dealWithBlock.");
                 }
                 NodeInst niCap = pi.getNodeInst();
                 parameter = getParameter(niCap.toString());
@@ -362,7 +360,6 @@ public class AuxilarySimpleAutotracing {
             case "SPM8":
             case "SPM9":
                 firstOfPair = ni;
-                //String spmStr = Accessory.parsePortToPort(ni.toString());
                 str = "SPM.*" + shortNamePin + "$"; // { needed to avoid being equal .X1 and .X10
                 break;
 
@@ -396,7 +393,7 @@ public class AuxilarySimpleAutotracing {
      * @param ni
      * @param nextBlock
      */
-    public void setKeys(NodeInst ni, String nextBlock) throws Exception {
+    public void setKeys(NodeInst ni, String nextBlock) throws FunctionalException {
         String name = ni.toString();
         boolean[] r;
         int tmp;
@@ -574,8 +571,9 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
-                            Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
+                            throw new FunctionalException("Illegal resistance."); 
+                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
+                            assert false;*/
                     }
                 } else if (index.equals("PQ") || index.equals("PR")) {
                     switch (var) {
@@ -607,8 +605,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
-                            Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
+                            throw new FunctionalException("Illegal resistance."); 
                     }
                 }
 
@@ -640,7 +637,7 @@ public class AuxilarySimpleAutotracing {
      * @param nogg
      * @return
      */
-    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg) {
+    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg) throws FunctionalException {
         assert pi != null;
         String name = pi.getNodeInst().toString();
         String parameter;
@@ -669,9 +666,10 @@ public class AuxilarySimpleAutotracing {
                             index = "PV";
                             break;
                         default:
-                            Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
-                            break;
+                            //Autotracing.getAutotracingTool().createAndShowGUI(false);
+                            throw new FunctionalException("Some problems with capacitors");
+                            /*assert false;
+                            break;*/
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
@@ -696,9 +694,10 @@ public class AuxilarySimpleAutotracing {
                             index = "PQ";
                             break;
                         default:
-                            Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
-                            break;
+                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
+                            assert false;*/
+                            throw new FunctionalException("Some problems with resistors");
+                            //break;
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
@@ -729,9 +728,10 @@ public class AuxilarySimpleAutotracing {
                                     index = "PQ";
                                     break;
                                 default:
-                                    Autotracing.getAutotracingTool().createAndShowGUI(false);
+                                    /*Autotracing.getAutotracingTool().createAndShowGUI(false);
                                     assert false;
-                                    break;
+                                    break;*/
+                                    throw new FunctionalException("Some problems with resistors");
                             }
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                             break;
@@ -762,7 +762,7 @@ public class AuxilarySimpleAutotracing {
      * Method to get the PADDR number (<198) from number of
      * inout(2,4,6,19,21...).
      */
-    private int getPaddrNumber(Integer i) throws IOException, Exception {
+    private int getPaddrNumber(Integer i) throws IOException, FunctionalException {
         try (BufferedReader padNumBuf = new BufferedReader(new FileReader(new File(Accessory.PAD_NUM)))) {
             boolean validNum = false;
             String line;
@@ -774,8 +774,9 @@ public class AuxilarySimpleAutotracing {
             }
             if (validNum == false) {
                 Accessory.showMessage("Not valid in/out number.");
-                Autotracing.getAutotracingTool().createAndShowGUI(false);
-                assert false;
+                throw new FunctionalException("Not valid in/out number."); 
+                /*Autotracing.getAutotracingTool().createAndShowGUI(false);
+                assert false;*/
             }
         }
         if (i >= 52) {
@@ -825,12 +826,13 @@ public class AuxilarySimpleAutotracing {
      * Method to understand what keys should be taken from Variable's value in
      * OA nodeInst.
      */
-    private int OAVariableAnalysis(String[] a) throws Exception {
+    private int OAVariableAnalysis(String[] a) throws FunctionalException {
         try {
             if ((Integer.valueOf(a[0]) == 0) || (Integer.valueOf(a[1]) == 0)) {
                 Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
-                Autotracing.getAutotracingTool().createAndShowGUI(false);
-                assert false;
+                throw new FunctionalException("Incorrect parameters values in CAU/PAU block.");
+                /*Autotracing.getAutotracingTool().createAndShowGUI(false);
+                assert false;*/
             }
         } catch (Exception e) {
             // just pass if there is 7.3 or smth.
@@ -841,8 +843,9 @@ public class AuxilarySimpleAutotracing {
             i = Math.round(f * Float.valueOf(a[0]));
         } catch (Exception e) {
             Accessory.showMessage("Incorrect parameters values in CAU/PAU block");
-            assert false;
-            throw new Exception("Incorrect parameters values in CAU/PAU block");
+            throw new FunctionalException("Incorrect parameters values in CAU/PAU block.");
+            /*assert false;
+            throw new Exception("Incorrect parameters values in CAU/PAU block");*/
         }
 
         return i;
@@ -866,11 +869,12 @@ public class AuxilarySimpleAutotracing {
     /**
      * Method to get SpiceCode from inout source port and inout parameter.
      */
-    private void addSourceWithSpiceCode(PortInst port, String inoutNumber) throws Exception {
+    private void addSourceWithSpiceCode(PortInst port, String inoutNumber) throws FunctionalException {
         HashSet<String> emptyList = new HashSet<>();
         if (port == null) {
             Accessory.showMessage("One of inputs doesn't have source.");
-            throw new Exception("One of inputs doesn't have source.");
+            throw new FunctionalException("Incorrect parameters values in CAU/PAU block.");
+            /*throw new Exception("One of inputs doesn't have source.");*/
         }
         PortInst[] piArr = Accessory.getNearByPortInsts(port, emptyList);
         for (PortInst pi : piArr) {
@@ -883,7 +887,7 @@ public class AuxilarySimpleAutotracing {
     /**
      * Method to get SpiceCode from source NodeInst and inout parameter.
      */
-    private void handleSource(PortInst pi, String inoutNumber) {
+    private void handleSource(PortInst pi, String inoutNumber) throws FunctionalException {
         Map<String, String> paramMap = new HashMap<>();
         String VSP = "_" + inoutNumber;
         String realName = Accessory.parsePortToBlockOld(pi.toString());
@@ -925,8 +929,8 @@ public class AuxilarySimpleAutotracing {
                 break;
             default:
                 Accessory.showMessage("Some problems with source " + realName);
-                System.out.println("Some problems with source " + realName);
-                break;
+                throw new FunctionalException("Some problems with source " + realName);
+                //break;
         }
         sourceList.add(source);
     }

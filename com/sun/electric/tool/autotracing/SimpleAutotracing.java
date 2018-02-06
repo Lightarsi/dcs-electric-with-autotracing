@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -89,7 +90,7 @@ public class SimpleAutotracing {
      * This method is used as initiation for autotracing system, cleaning files
      * and prepare for work, renew all static objects.
      */
-    private void makeTrace() {
+    private void makeTrace(){
         exitPressed = false;
         int imax = 45;               // max amount of iterations
         resetStatics();
@@ -97,11 +98,15 @@ public class SimpleAutotracing {
 
         try {
             initStart(false);
-        } catch (Exception e) {
-            Accessory.showMessage("First step failed.");
-            Accessory.printLog("First step failed");
-            Autotracing.getAutotracingTool().createAndShowGUI(false);
+        } catch (StepFailedException e) {
+            Accessory.showMessage("Autotracing proccess failed with non-specific reason.");
+            return;
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
             assert false;
+        } catch(FunctionalException fe) {
+            fe.printStackTrace();
+            return;
         }
         resetStatics();
         nogg.applyWeightChanges();
@@ -110,7 +115,7 @@ public class SimpleAutotracing {
         for (int i = 0; i < imax; i++) {
             if(exitPressed) {
                 exitPressed = false;
-                assert false;
+                return;
             }
             System.out.println("Step " + i);
             boolean withIncrease = false;
@@ -127,13 +132,20 @@ public class SimpleAutotracing {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
                 assert false;
-            } catch (Exception e) {
+            } catch (StepFailedException e) {
                 e.printStackTrace();
-                oneMoreStep(withIncrease);
+                try {
+                    oneMoreStep(withIncrease);
+                } catch(FunctionalException fe) {
+                    fe.printStackTrace();
+                    return;
+                }
+            } catch(FunctionalException fe) {
+                fe.printStackTrace();
+                return;
             }
             if (i == (imax - 1)) {
                 Accessory.showMessage("Autotracing proccess failed.");
-                Autotracing.getAutotracingTool().createAndShowGUI(false);
                 return;
             }
         }
@@ -144,16 +156,15 @@ public class SimpleAutotracing {
     /**
      * prepare new Iteration with increased path weight.
      */
-    private void oneMoreStep(boolean withIncrease) {
+    private void oneMoreStep(boolean withIncrease) throws FunctionalException {
         resetStatics();
-        Accessory.printLog("Step failed");
         nogg = new NonOrientedGlobalGraph(nogg2);
         if (withIncrease) {
             try {
                 initStart(false);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
-            } catch (Exception e) {
+            } catch (StepFailedException e) {
                 e.printStackTrace();
                 Accessory.printLog("Step failed");
             }
@@ -180,7 +191,7 @@ public class SimpleAutotracing {
      * Initiation method, get starting point, set as used and start tracing
      * method.
      */
-    private void initStart(boolean doDelete) throws Exception, IOException {
+    private void initStart(boolean doDelete) throws IOException, StepFailedException, FunctionalException {
         scheme.resetScheme();
         NodeInst[] startNi = Accessory.getStartingNodeInst();
         for (NodeInst ni : startNi) {
@@ -198,7 +209,7 @@ public class SimpleAutotracing {
      * to files, delete all these pathes from current object sphere, iteratively
      * starting second method (for all ports and all nodeInsts).
      */
-    private void traceFromStartToEnd(PortInst startPort, boolean doDelete) throws Exception, IOException {
+    private void traceFromStartToEnd(PortInst startPort, boolean doDelete) throws IOException, StepFailedException, FunctionalException {
         PortInst[] piArray = Accessory.getNearByPortInsts(startPort, usedPortList);
         for (PortInst pi : piArray) {
             setPortAsUsed(pi);
@@ -213,7 +224,7 @@ public class SimpleAutotracing {
         Accessory.printLog(firstChainS);
 
         if (firstChain == -1) {
-            throw new Exception("firstChain");
+            throw new StepFailedException("firstChain");
         }
 
         for (PortInst pi : piArray) {
@@ -262,7 +273,7 @@ public class SimpleAutotracing {
      * trace from name(that is formed from objectName) to existing portInst and
      * add this portInst to array, delete all traces from current object sphere.
      */
-    private void traceFromStartToEnd(PortInst startPort, String param, boolean doDelete) throws Exception {
+    private void traceFromStartToEnd(PortInst startPort, String param, boolean doDelete) throws IOException, StepFailedException, FunctionalException {
         if (isPortUsed(startPort)) {
             return;
         } else {
@@ -296,7 +307,7 @@ public class SimpleAutotracing {
                 PortInst pi = piArray[0];
                 nogg2.deikstra(name, auxisa.dealWithBlock(pi.getNodeInst(), pi), param, false, false);
             }
-            throw new Exception("SecondChain");
+            throw new StepFailedException("SecondChain");
         }
         String firstChainS = nogg.getNameFromPoint(firstChain, name);
         assert firstChainS != null;
@@ -316,12 +327,18 @@ public class SimpleAutotracing {
             String nextBlock;
             
             Accessory.timeStart("s");
-            firstChain = deikstraMultiThreads(firstChainsList, pi, secondPort, param);
+            try {
+                firstChain = deikstraMultiThreads(firstChainsList, pi, secondPort, param);
+            } catch(ExecutionException | InterruptedException ee) {
+                ee.printStackTrace();
+                assert false;
+            }
+            
             Accessory.timeStart("s");
         
             firstChainS = nogg.getNameFromPoint(firstChain, name);
             if (firstChainS == null) {
-                throw new Exception("So sad. Can't do autotracing through this way.");
+                throw new StepFailedException("So sad. Can't do autotracing through this way.");
             }
 
             scheme.addLink(startPort.toString(), firstChainS);
@@ -337,7 +354,7 @@ public class SimpleAutotracing {
                 for (int j = 0; j < 5; j++) {
                     nogg2.deikstra(firstChain, secondPort, param, false, false);
                 }
-                throw new Exception("nextBlock");
+                throw new StepFailedException("nextBlock");
             }
 
             if (nextBlock.contains("SPM<")) {
@@ -358,7 +375,7 @@ public class SimpleAutotracing {
         }
     }
 
-    private int deikstraMultiThreads(ArrayList<Integer> firstChainsList, PortInst pi, String secondPort, String param) throws Exception {
+    private int deikstraMultiThreads(ArrayList<Integer> firstChainsList, PortInst pi, String secondPort, String param) throws ExecutionException, InterruptedException, StepFailedException, FunctionalException {
         final AtomicInteger pathLength = new AtomicInteger(100000);
         final AtomicInteger firstChain = new AtomicInteger(-1);
         List<Future> futures = new ArrayList<>();
@@ -397,7 +414,7 @@ public class SimpleAutotracing {
         }
 
         if (pathLength.get() == 100000) {
-            throw new Exception("So sad. Can't do autotracing through this way.");
+            throw new StepFailedException("So sad. Can't do autotracing through this way.");
         }
         return firstChain.get();
     }
@@ -503,7 +520,7 @@ public class SimpleAutotracing {
      * Method to commit autotracing step results, setting Parameter of NodeInst
      * when you know where trace came.
      */
-    private void addNextNode(PortInst pi, String nextBlock) throws Exception {
+    private void addNextNode(PortInst pi, String nextBlock) throws FunctionalException {
         NodeInst ni = pi.getNodeInst();
         auxisa.setParameter(ni, nextBlock);
         auxisa.setKeys(ni, nextBlock);
