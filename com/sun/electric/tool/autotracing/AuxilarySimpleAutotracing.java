@@ -526,7 +526,6 @@ public class AuxilarySimpleAutotracing {
             case "PAU_COMP":
                 addKey(nextBlock, 6);
                 addKey(nextBlock, 8);
-                addKey(nextBlock, 41);
                 break;
 
             case "CAP":

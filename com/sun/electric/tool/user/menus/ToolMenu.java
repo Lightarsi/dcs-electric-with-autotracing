@@ -206,22 +206,24 @@ public class ToolMenu {
             }
         },
                 SEPARATOR,
-                new EMenuItem("Make Trace (beta)") {
+                new EMenuItem("Make Trace") {
             public void run() {
                 MakeTrace();
             }
         },
-                new EMenuItem("Get Advice (beta)") {
+                new EMenuItem("Change Net Colour") {
             public void run() {
-                //getAdvice();
-                EditingPreferences ep = EditingPreferences.getInstance();
-                ArrayList<Pair<ArcInst, String>> arcList = setName();
-                Accessory.setName(ep, arcList);
+                javaBshDo("c:\\CYGELENG\\electric\\MakeWide.bsh");
             }
         },
-                new EMenuItem("PointToPoint") {
+                new EMenuItem("Point To Point") {
             public void run() {
                 setPathPointToPoint();
+            }
+        },
+                new EMenuItem("Write Simulation Path") {
+            public void run() {
+                javaBshDo("c:\\CYGELENG\\electric\\Write_SimPath.bsh");
             }
         },
                 SEPARATOR,
@@ -230,6 +232,17 @@ public class ToolMenu {
                 javaBshDo("c:\\CYGELENG\\electric\\ImportKeys.bsh");
             }
         },
+                new EMenuItem("Delete Unused Part") {
+            public void run() {
+                javaBshDo("c:\\CYGELENG\\electric\\DeleteUnusedPart.bsh");
+            }
+        },
+                new EMenuItem("Delete Keys") {
+            public void run() {
+                com.sun.electric.tool.scripts.DeleteKeysFromBlock.doDelete();
+            }
+        },
+                SEPARATOR,
                 new EMenuItem("Copy Keys") {
             public void run() {
                 javaBshDo("c:\\CYGELENG\\electric\\CopyKeys.bsh");
@@ -238,21 +251,6 @@ public class ToolMenu {
                 new EMenuItem("Paste Keys") {
             public void run() {
                 javaBshDo("c:\\CYGELENG\\electric\\PasteKeys.bsh");
-            }
-        },
-                new EMenuItem("Delete Unused Part") {
-            public void run() {
-                javaBshDo("c:\\CYGELENG\\electric\\DeleteUnusedPart.bsh");
-            }
-        },
-                new EMenuItem("Change Net Colour") {
-            public void run() {
-                javaBshDo("c:\\CYGELENG\\electric\\MakeWide.bsh");
-            }
-        },
-                new EMenuItem("Delete Keys From Block") {
-            public void run() {
-                com.sun.electric.tool.scripts.DeleteKeysFromBlock.doDelete();
             }
         });
 
