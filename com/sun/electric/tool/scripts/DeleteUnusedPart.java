@@ -41,6 +41,7 @@ import com.sun.electric.tool.autotracing.Automodelling;
 
 import com.sun.electric.tool.Job;
 import com.sun.electric.tool.JobException;
+import com.sun.electric.tool.autotracing.Accessory;
 import com.sun.electric.tool.user.User;
 
 /**
@@ -198,6 +199,7 @@ public class DeleteUnusedPart {
             }
             cell = Automodelling.getCellFromName(Automodelling.AUTOTRACING_CELL_NAME);
             deleteUnusedPart(cell);
+            Accessory.showMessage("Autotracing process completed");
             return true;
         }
     }
