@@ -6,7 +6,7 @@
 
 <!-- File: build.xml -->
 
-<!-- Copyright (c) 2012, Oracle and/or its affiliates. All rights reserved. -->
+<!-- Copyright (c) 2012, Static Free Software. All rights reserved. -->
 
 <!-- Electric(tm) is free software; you can redistribute it and/or modify -->
 <!-- it under the terms of the GNU General Public License as published by -->
@@ -21,7 +21,7 @@
 <!-- You should have received a copy of the GNU General Public License -->
 <!-- along with this program.  If not, see http://www.gnu.org/licenses/ -->
 
-<project basedir="C:\\jar" default="jar" name="electric">
+<project basedir="." default="jar" name="electric">
 
 	<!-- *********************************** MAIN TARGET *********************************** -->
 
@@ -31,17 +31,17 @@
 		<mkdir dir="${antBuild}"/>
 		<antcall target="compile" />
 		<antcall target="copyOrg" />
-                <antcall target="copyJava" />
                 <antcall target="copyScala" />
+                <antcall target="copyJava" />
 		<antcall target="createJARFile" />
 	</target>
 
 	<!-- *********************************** SUPPORT TARGETS *********************************** -->
 
 	<target name="initialize" description="Initiaize file locations, JAR locations, and the Electric version">
-		<property name="packaging"          value="C:\\jar" />
+		<property name="packaging"          value="${basedir}" />
 		<property name="antBuild"           value="${packaging}/antBuild" />
-		<property name="ElectricJavaLoc"    value="C:\\jar" />
+		<property name="ElectricJavaLoc"    value="${basedir}" />
 
 		<!-- the location of various JAR files -->
 		<property name="org"                value="${packaging}/org" />
@@ -84,15 +84,15 @@
 		</copy>
 	</target>
         
-        <target name="copyJava" description="Copy Jar files for logging">
-		<copy todir="${antBuild}/com">
-			<fileset dir="${packaging}/com" />
+        <target name="copyScala" description="Copy Scala files to jar">
+		<copy todir="${antBuild}/scala">
+			<fileset dir="${packaging}/scala" />
 		</copy>
 	</target>
         
-        <target name="copyScala" description="Copy external jar files (scala)">
-		<copy todir="${antBuild}/scala">
-			<fileset dir="${packaging}/scala" />
+        <target name="copyJava" description="Copy Java source files to jar">
+		<copy todir="${antBuild}/com">
+			<fileset dir="${packaging}/com" />
 		</copy>
 	</target>
 

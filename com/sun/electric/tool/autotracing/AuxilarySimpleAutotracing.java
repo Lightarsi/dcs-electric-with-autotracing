@@ -76,7 +76,6 @@ public class AuxilarySimpleAutotracing {
      * @param ni
      * @param pi
      * @return
-     * @throws java.lang.Exception
      */
     public String dealWithBlock(NodeInst ni, PortInst pi) throws IOException, StepFailedException, FunctionalException {
         String name = ni.toString();
@@ -147,11 +146,14 @@ public class AuxilarySimpleAutotracing {
                 }
                 break;
 
+            case "P_CAU_POS_FB":
             case "CAU_POS_FB":
                 switch (shortNamePin) {
+                    case "INM_P":
                     case "INM":
                         str = "CAU.*\\.PX[123]";
                         break;
+                    case "INP_P":
                     case "INP":
                         str = "CAU.*\\.PZ[123]";
                         break;
@@ -161,12 +163,15 @@ public class AuxilarySimpleAutotracing {
                 }
                 break;
 
+            case "P_CAU_NEG_FB":
             case "CAU_NEG_FB":
                 switch (shortNamePin) {
                     case "INM":
+                    case "INM_P":
                         str = "CAU.*\\.PZ[123]";
                         break;
                     case "INP":
+                    case "INP_P":
                         str = "CAU.*\\.PY[123]";
                         break;
                     case "OUT":
@@ -317,23 +322,17 @@ public class AuxilarySimpleAutotracing {
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
                     switch (shortNamePin) {
-                        case "r1":
-                        case "r1_p":
-                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                            Accessory.printLog("str = " + str);
-                            return str;
-
-                        case "r2":
-                        case "r2_p":
+                        case "res1":
+                        case "res1_p":
                             switch (index) {
                                 case "PO":
-                                    index = "PP";
+                                    index = "PO";
                                     break;
                                 case "PP":
                                     index = "PO";
                                     break;
                                 case "PQ":
-                                    index = "PR";
+                                    index = "PQ";
                                     break;
                                 case "PR":
                                     index = "PQ";
@@ -342,12 +341,43 @@ public class AuxilarySimpleAutotracing {
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                             Accessory.printLog("str = " + str);
                             return str;
+
+                        case "res2":
+                        case "res2_p":
+                            switch (index) {
+                                case "PO":
+                                    index = "PP";
+                                    break;
+                                case "PP":
+                                    index = "PP";
+                                    break;
+                                case "PQ":
+                                    index = "PR";
+                                    break;
+                                case "PR":
+                                    index = "PR";
+                                    break;
+                            }
+                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
+                            Accessory.printLog("str = " + str);
+                            return str;
                     }
 
                 }
-                str = "PPC.*\\.P[OPRQ][123]";
-                Accessory.printLog("str = " + str);
-                return str;
+                switch (shortNamePin) {
+                    case "res1":
+                    case "res1_p":
+                        str = "PPC.*\\.P[OQ][123]";  // str = "PPC.*\\.P[OQPR][123]";
+                        Accessory.printLog("str = " + str);
+                        return str;
+
+                    case "res2":
+                    case "res2_p":
+                        str = "PPC.*\\.P[PR][123]";  // str = "PPC.*\\.P[OQPR][123]";
+                        Accessory.printLog("str = " + str);
+                        return str;
+                }
+                throw new FunctionalException("Precision resistors don't work.");
 
             case "SPM":
             case "SPM1":
@@ -427,6 +457,7 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 28);
                 break;
 
+            case "P_CAU_POS_FB":
             case "CAU_POS_FB":
                 // FEEDBACK BLOCK
                 tmp = OAVariableAnalysis(getOAVariableValue(ni));
@@ -445,6 +476,7 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 28);
                 break;
 
+            case "P_CAU_NEG_FB":
             case "CAU_NEG_FB":
                 // FEEDBACK BLOCK
                 tmp = OAVariableAnalysis(getOAVariableValue(ni));
@@ -570,8 +602,8 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
-                            throw new FunctionalException("Illegal resistance."); 
-                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
+                            throw new FunctionalException("Illegal resistance.");
+                        /*Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;*/
                     }
                 } else if (index.equals("PQ") || index.equals("PR")) {
@@ -604,7 +636,7 @@ public class AuxilarySimpleAutotracing {
 
                         default:
                             Accessory.showMessage("Illegal resistance. Please check and try again");
-                            throw new FunctionalException("Illegal resistance."); 
+                            throw new FunctionalException("Illegal resistance.");
                     }
                 }
 
@@ -667,7 +699,7 @@ public class AuxilarySimpleAutotracing {
                         default:
                             //Autotracing.getAutotracingTool().createAndShowGUI(false);
                             throw new FunctionalException("Some problems with capacitors");
-                            /*assert false;
+                        /*assert false;
                             break;*/
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
@@ -696,7 +728,7 @@ public class AuxilarySimpleAutotracing {
                             /*Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;*/
                             throw new FunctionalException("Some problems with resistors");
-                            //break;
+                        //break;
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
@@ -773,7 +805,7 @@ public class AuxilarySimpleAutotracing {
             }
             if (validNum == false) {
                 Accessory.showMessage("Not valid in/out number.");
-                throw new FunctionalException("Not valid in/out number."); 
+                throw new FunctionalException("Not valid in/out number.");
                 /*Autotracing.getAutotracingTool().createAndShowGUI(false);
                 assert false;*/
             }
@@ -860,12 +892,12 @@ public class AuxilarySimpleAutotracing {
         Integer i;
         try {
             i = Integer.valueOf(value);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Accessory.showMessage("Not valid in/out number.");
             throw new FunctionalException("Not valid in/out number.");
         }
-        
+
         if (i != 0) {
             return i;
         }
@@ -937,7 +969,7 @@ public class AuxilarySimpleAutotracing {
             default:
                 Accessory.showMessage("Some problems with source " + realName);
                 throw new FunctionalException("Some problems with source " + realName);
-                //break;
+            //break;
         }
         sourceList.add(source);
     }
