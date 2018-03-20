@@ -9,23 +9,23 @@ package com.sun.electric.tool.autotracing;
  *
  * @author Astepanov
  */
-public class ProcessFile {
+public class BlockMapForGraph {
 
     String str = null;
 
-    private static ProcessFile elem;
+    private static BlockMapForGraph blockMap;
 
-    private ProcessFile() {
+    private BlockMapForGraph() {
     }
 
-    public static ProcessFile getProcessFile() {
-        if (elem == null) {
-            elem = new ProcessFile();
+    public static BlockMapForGraph getBlockMapForGraph() {
+        if (blockMap == null) {
+            blockMap = new BlockMapForGraph();
         }
-        return elem;
+        return blockMap;
     }
 
-    public String cau(String shortNamePin) {
+    public String getAdrForCau(String shortNamePin) {
         switch (shortNamePin) {
             case "INM_1":
             case "INM_2":
@@ -46,7 +46,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String cauComp(String shortNamePin) {
+    public String getAdrForCauComp(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -67,7 +67,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String cauPosFb(String shortNamePin) {
+    public String getAdrForCauPosFb(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -92,7 +92,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String cauNegFb(String shortNamePin) {
+    public String getAdrForCauNegFb(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -117,7 +117,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String pau(String shortNamePin) {
+    public String getAdrForPau(String shortNamePin) {
         switch (shortNamePin) {
             case "INM_1":
             case "INM_2":
@@ -138,7 +138,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String pauDiff(String shortNamePin) {
+    public String getAdrForPauDiff(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -164,7 +164,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String pauDiffFb(String shortNamePin) {
+    public String getAdrForPauDiffFb(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -198,7 +198,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String pauNegFb(String shortNamePin) {
+    public String getAdrForPauNegFb(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":
@@ -223,7 +223,7 @@ public class ProcessFile {
         return str;
     }
 
-    public String pauComp(String shortNamePin) {
+    public String getAdrForPauComp(String shortNamePin) {
         switch (shortNamePin) {
             case "INM": // deprecated
             case "INM_1":

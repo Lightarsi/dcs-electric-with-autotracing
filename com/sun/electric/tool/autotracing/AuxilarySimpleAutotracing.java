@@ -45,7 +45,7 @@ public class AuxilarySimpleAutotracing {
     private NodeInst firstOfPair = null;
     private String secondOfPair = null;
 
-    private static ProcessFile elem;
+    private static BlockMapForGraph blockMap;
     private static AuxilarySimpleAutotracing auxisa;
 
     private AuxilarySimpleAutotracing() {
@@ -69,7 +69,7 @@ public class AuxilarySimpleAutotracing {
         SPMList = new HashSet<>();
         sourceList = new ArrayList<>();
         keyHashMap = new HashMap<>();
-        elem = ProcessFile.getProcessFile();//тут строка
+        blockMap = BlockMapForGraph.getBlockMapForGraph();//тут строка
     }
 
     /**
@@ -119,39 +119,39 @@ public class AuxilarySimpleAutotracing {
                 break;
 
             case "CAU":
-                str = elem.cau(shortNamePin);
+                str = blockMap.getAdrForCau(shortNamePin);
                 break;
 
             case "CAU_COMP":
-                str = elem.cauComp(shortNamePin);
+                str = blockMap.getAdrForCauComp(shortNamePin);
                 break;
 
             case "CAU_POS_FB":
-                str = elem.cauPosFb(shortNamePin);
+                str = blockMap.getAdrForCauPosFb(shortNamePin);
                 break;
 
             case "CAU_NEG_FB":
-                str = elem.cauNegFb(shortNamePin);
+                str = blockMap.getAdrForCauNegFb(shortNamePin);
                 break;
 
             case "PAU":
-                str = elem.pau(shortNamePin);
+                str = blockMap.getAdrForPau(shortNamePin);
                 break;
 
             case "PAU_DIFF":
-                str = elem.pauDiff(shortNamePin);
+                str = blockMap.getAdrForPauDiff(shortNamePin);
                 break;
 
             case "PAU_DIFF_FB":
-                str = elem.pauDiffFb(shortNamePin);
+                str = blockMap.getAdrForPauDiffFb(shortNamePin);
                 break;
 
             case "PAU_NEG_FB":
-                str = elem.pauNegFb(shortNamePin);
+                str = blockMap.getAdrForPauNegFb(shortNamePin);
                 break;
 
             case "PAU_COMP":
-                str = elem.pauComp(shortNamePin);
+                str = blockMap.getAdrForPauComp(shortNamePin);
                 break;
 
             /* case "CAP":
@@ -185,7 +185,7 @@ public class AuxilarySimpleAutotracing {
                 Accessory.printLog("str = " + str);
                 return str;*/
             case "CAP":
-                if (pi == null) {
+                if (pi == null) {//check
                     throw new StepFailedException("Null reference in dealWithBlock.");
                 }
                 NodeInst niP_Cap = pi.getNodeInst();
@@ -193,14 +193,13 @@ public class AuxilarySimpleAutotracing {
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
                     switch (shortNamePin) {
-                        case "C2":
+                        /* case "C2": //check
                         case "C1":
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                             Accessory.printLog("str = " + str);
-                            return str;
-
-                        case "C4":
-                        case "C3":
+                            return str;*/
+                        case "C1":
+                        case "C2":
                             switch (index) {
                                 case "PX":
                                     index = "PY";
@@ -255,6 +254,8 @@ public class AuxilarySimpleAutotracing {
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
                     switch (shortNamePin) {
+                        case "res1":
+                        case "r1":
                         case "R1":
                         case "R2":
                             switch (index) {
@@ -277,6 +278,8 @@ public class AuxilarySimpleAutotracing {
 
                         case "R3":
                         case "R4":
+                        case "res2":
+                        case "r2":
                             switch (index) {
                                 case "PO":
                                     index = "PP";
@@ -300,12 +303,16 @@ public class AuxilarySimpleAutotracing {
                 switch (shortNamePin) {
                     case "R1":
                     case "R2":
+                    case "res1":
+                    case "r1":
                         str = "PPC.*\\.P[OQ][123]";  // str = "PPC.*\\.P[OQPR][123]";
                         Accessory.printLog("str = " + str);
                         return str;
 
                     case "R3":
                     case "R4":
+                    case "res2":
+                    case "r2":
                         str = "PPC.*\\.P[PR][123]";  // str = "PPC.*\\.P[OQPR][123]";
                         Accessory.printLog("str = " + str);
                         return str;
@@ -654,8 +661,8 @@ public class AuxilarySimpleAutotracing {
                             break;
                         default:
                             /*Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;*/
- /*   throw new FunctionalException("Some problems with resistors");
+                            assert false;
+    throw new FunctionalException("Some problems with resistors");
                         //break;
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
@@ -668,10 +675,14 @@ public class AuxilarySimpleAutotracing {
                     switch (shortNamePin) {
                         case "R1":
                         case "R2":
+                        case "res1":
+                        case "r1"://check
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                             break;
                         case "R3":
                         case "R4":
+                        case "r2"://check
+                        case "res2":
                             switch (index) {
                                 case "PO":
                                     index = "PP";
@@ -885,13 +896,13 @@ public class AuxilarySimpleAutotracing {
                         + paramMap.get("FREQ") + " " + paramMap.get("TD") + " "
                         + paramMap.get("THETA") + " )";
                 break;
-                case "vsin_AC":
+            case "vsin_AC":
                 //V$(node_name) $(VSP) 0 sin ( $(VO) $(VA) $(FREQ) $(TD) $(THETA)) AC $(AC)
                 source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 sin ("
                         + paramMap.get("VO") + " " + paramMap.get("VA") + " "
                         + paramMap.get("FREQ") + " " + paramMap.get("TD") + " "
                         + paramMap.get("THETA") + " )" + "AC" + " " + paramMap.get("AC");
-                
+
                 break;
             case "vpwl":
                 //V$(node_name) $(VSP) 0 PWL $(VAL)
@@ -963,22 +974,8 @@ public class AuxilarySimpleAutotracing {
      *
      * @author Astepanov
      */
-    private class ReadFile {
 
-        private final ArrayList<Pair<String, String>> portColl = new ArrayList<>();
-
-        private final String name;
-
-        public ReadFile(String name) {
-            this.name = name;
-        }
-
-        public void addPort(String port, String str) {
-            Pair<String, String> portt = new Pair<>(port, str);
-            portColl.add(portt);
-        }
-
-        /*try {
+    /*try {
             File file = new File("C:/test/test.txt");
             FileReader fr = new FileReader(file);
             BufferedReader reader = new BufferedReader(fr);
@@ -992,5 +989,4 @@ public class AuxilarySimpleAutotracing {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
-    }
 }
