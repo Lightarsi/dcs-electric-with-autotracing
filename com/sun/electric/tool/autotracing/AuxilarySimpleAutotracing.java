@@ -200,6 +200,8 @@ public class AuxilarySimpleAutotracing {
                             return str;*/
                         case "C1":
                         case "C2":
+                        case "c2":
+                        case "c1":
                             switch (index) {
                                 case "PX":
                                     index = "PY";
@@ -966,27 +968,4 @@ public class AuxilarySimpleAutotracing {
     public HashSet<Pair<NodeInst, String>> getSPMList() {
         return SPMList;
     }
-
-    /*ArrayList<ReadFile> blockCollection = new ArrayList<>();
-    /*ReadFile blockObject = new ReadFile(say[0]); //Создать объект
-    blockObject.addPort(say[1], say[2]); //добавить коллекцию в объект */
-    /**
-     *
-     * @author Astepanov
-     */
-
-    /*try {
-            File file = new File("C:/test/test.txt");
-            FileReader fr = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fr);
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                String[] say = line.split(" ");
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
 }
