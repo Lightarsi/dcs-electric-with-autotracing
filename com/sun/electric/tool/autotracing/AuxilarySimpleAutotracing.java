@@ -45,6 +45,7 @@ public class AuxilarySimpleAutotracing {
     private NodeInst firstOfPair = null;
     private String secondOfPair = null;
 
+    private static ProcessFile elem;
     private static AuxilarySimpleAutotracing auxisa;
 
     private AuxilarySimpleAutotracing() {
@@ -68,6 +69,7 @@ public class AuxilarySimpleAutotracing {
         SPMList = new HashSet<>();
         sourceList = new ArrayList<>();
         keyHashMap = new HashMap<>();
+        elem = ProcessFile.getProcessFile();//тут строка
     }
 
     /**
@@ -86,6 +88,8 @@ public class AuxilarySimpleAutotracing {
             shortNamePin = pi.toString().substring(pi.toString().lastIndexOf(".") + 1, pi.toString().lastIndexOf("'"));
         }
         String str = null;
+        Accessory.printLog("shortName = " + shortName);
+
         switch (shortName) {
             case "INPUT":
                 Iterator<PortInst> itrPi = ni.getPortInsts();
@@ -115,152 +119,42 @@ public class AuxilarySimpleAutotracing {
                 break;
 
             case "CAU":
-            case "P_CAU":
-                switch (shortNamePin) {
-                    case "INM":
-                    case "INM_P":
-                        str = "CAU.*PX[123]";
-                        break;
-                    case "INP":
-                    case "INP_P":
-                        str = "CAU.*PY[123]";
-                        break;
-                    case "OUT":
-                    case "OUT_P":
-                        str = "CAU.*P[VW][123]";
-                        break;
-                }
+                str = elem.cau(shortNamePin);
                 break;
 
             case "CAU_COMP":
-                switch (shortNamePin) {
-                    case "INM":
-                        str = "CAU.*\\.PX[123]";
-                        break;
-                    case "INP":
-                        str = "CAU.*\\.PY[123]";
-                        break;
-                    case "OUT":
-                        str = "CAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.cauComp(shortNamePin);
                 break;
 
-            case "P_CAU_POS_FB":
             case "CAU_POS_FB":
-                switch (shortNamePin) {
-                    case "INM_P":
-                    case "INM":
-                        str = "CAU.*\\.PX[123]";
-                        break;
-                    case "INP_P":
-                    case "INP":
-                        str = "CAU.*\\.PZ[123]";
-                        break;
-                    case "OUT":
-                        str = "CAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.cauPosFb(shortNamePin);
                 break;
 
-            case "P_CAU_NEG_FB":
             case "CAU_NEG_FB":
-                switch (shortNamePin) {
-                    case "INM":
-                    case "INM_P":
-                        str = "CAU.*\\.PZ[123]";
-                        break;
-                    case "INP":
-                    case "INP_P":
-                        str = "CAU.*\\.PY[123]";
-                        break;
-                    case "OUT":
-                        str = "CAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.cauNegFb(shortNamePin);
                 break;
 
-            case "P_PAU":
             case "PAU":
-                switch (shortNamePin) {
-                    case "INM_P":
-                    case "INM":
-                        str = "PAU.*\\.PY[123]";
-                        break;
-                    case "INP_P":
-                    case "INP":
-                        str = "PAU.*\\.PX[123]";
-                        break;
-                    case "OUT_P":
-                    case "OUT":
-                        str = "PAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.pau(shortNamePin);
                 break;
 
             case "PAU_DIFF":
-                switch (shortNamePin) {
-                    case "INM":
-                        str = "PAU.*\\.PY[123]";
-                        break;
-                    case "INP":
-                        str = "PAU.*\\.PX[123]";
-                        break;
-                    case "OUTP":
-                        str = "PAU.*\\.P[VW][123]";
-                        break;
-                    case "OUTM":
-                        str = "PAU.*\\.P[UR][123]";
-                        break;
-                }
+                str = elem.pauDiff(shortNamePin);
                 break;
 
             case "PAU_DIFF_FB":
-                switch (shortNamePin) {
-                    case "INM":
-                        str = "PAU.*\\.PZ[123]";
-                        break;
-                    case "INP":
-                        str = "PAU.*\\.PO[123]";
-                        break;
-                    case "OUTM":
-                        str = "PAU.*\\.P[UR][123]";
-                        break;
-                    case "OUTP":
-                        str = "PAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.pauDiffFb(shortNamePin);
                 break;
 
             case "PAU_NEG_FB":
-                switch (shortNamePin) {
-                    case "INM":
-                        str = "PAU.*\\.PZ[123]";
-                        break;
-                    case "INP":
-                        str = "PAU.*\\.PX[123]";
-                        break;
-                    case "OUT":
-                        str = "PAU.*\\.P[VW][123]";
-                        break;
-                }
+                str = elem.pauNegFb(shortNamePin);
                 break;
 
             case "PAU_COMP":
-                switch (shortNamePin) {
-                    case "INM":
-                        str = "PAU.*\\.PY[123]";
-                        break;
-                    case "INP":
-                        str = "PAU.*\\.PX[123]";
-                        break;
-                    case "OUT":
-                        str = "PAU.*\\.PS[123]";
-                        break;
-                }
+                str = elem.pauComp(shortNamePin);
                 break;
 
-            case "CAP":
+            /* case "CAP":
                 if (pi == null) {
                     throw new StepFailedException("Null reference in dealWithBlock.");
                 }
@@ -289,9 +183,48 @@ public class AuxilarySimpleAutotracing {
 
                 str = "PPC.*\\.P[XYVZ][123]";
                 Accessory.printLog("str = " + str);
+                return str;*/
+            case "CAP":
+                if (pi == null) {
+                    throw new StepFailedException("Null reference in dealWithBlock.");
+                }
+                NodeInst niP_Cap = pi.getNodeInst();
+                parameter = getParameter(niP_Cap.toString());
+                if (parameter != null) {
+                    String index = parameter.substring(parameter.length() - 2, parameter.length());
+                    switch (shortNamePin) {
+                        case "C2":
+                        case "C1":
+                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
+                            Accessory.printLog("str = " + str);
+                            return str;
+
+                        case "C4":
+                        case "C3":
+                            switch (index) {
+                                case "PX":
+                                    index = "PY";
+                                    break;
+                                case "PY":
+                                    index = "PX";
+                                    break;
+                                case "PV":
+                                    index = "PZ";
+                                    break;
+                                case "PZ":
+                                    index = "PV";
+                                    break;
+                            }
+                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
+                            Accessory.printLog("str = " + str);
+                            return str;
+                    }
+                }
+                str = "PPC.*\\.P[XYVZ][123]";
+                Accessory.printLog("str = " + str);
                 return str;
 
-            case "RES":
+            /*case "RES":
                 parameter = getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
@@ -316,14 +249,14 @@ public class AuxilarySimpleAutotracing {
                 str = "PPC.*\\.P[OPRQ][123]";
                 Accessory.printLog("str = " + str);
                 return str;
-
-            case "P_RES":
+             */
+            case "RES":
                 parameter = getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
                     switch (shortNamePin) {
-                        case "res1":
-                        case "res1_p":
+                        case "R1":
+                        case "R2":
                             switch (index) {
                                 case "PO":
                                     index = "PO";
@@ -342,8 +275,8 @@ public class AuxilarySimpleAutotracing {
                             Accessory.printLog("str = " + str);
                             return str;
 
-                        case "res2":
-                        case "res2_p":
+                        case "R3":
+                        case "R4":
                             switch (index) {
                                 case "PO":
                                     index = "PP";
@@ -365,14 +298,14 @@ public class AuxilarySimpleAutotracing {
 
                 }
                 switch (shortNamePin) {
-                    case "res1":
-                    case "res1_p":
+                    case "R1":
+                    case "R2":
                         str = "PPC.*\\.P[OQ][123]";  // str = "PPC.*\\.P[OQPR][123]";
                         Accessory.printLog("str = " + str);
                         return str;
 
-                    case "res2":
-                    case "res2_p":
+                    case "R3":
+                    case "R4":
                         str = "PPC.*\\.P[PR][123]";  // str = "PPC.*\\.P[OQPR][123]";
                         Accessory.printLog("str = " + str);
                         return str;
@@ -442,7 +375,6 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 1);
                 break;
 
-            case "P_CAU":
             case "CAU":
                 addKey(nextBlock, 6);
                 addKey(nextBlock, 7);
@@ -457,7 +389,6 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 28);
                 break;
 
-            case "P_CAU_POS_FB":
             case "CAU_POS_FB":
                 // FEEDBACK BLOCK
                 tmp = OAVariableAnalysis(getOAVariableValue(ni));
@@ -476,7 +407,6 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 28);
                 break;
 
-            case "P_CAU_NEG_FB":
             case "CAU_NEG_FB":
                 // FEEDBACK BLOCK
                 tmp = OAVariableAnalysis(getOAVariableValue(ni));
@@ -495,7 +425,6 @@ public class AuxilarySimpleAutotracing {
                 addKey(nextBlock, 28);
                 break;
 
-            case "P_PAU":
             case "PAU":
                 addKey(nextBlock, 48);
                 addKey(nextBlock, 6);
@@ -513,8 +442,8 @@ public class AuxilarySimpleAutotracing {
             case "PAU_DIFF_FB":
                 // FEEDBACK BLOCK
                 String[] vars = getOAVariableValue(ni);
-                String[] var1 = {vars[0], vars[1]};
-                String[] var2 = {vars[2], vars[3]};
+                String[] var1 = {vars[0], vars[2]};
+                String[] var2 = {vars[1], vars[3]};
                 tmp = OAVariableAnalysis(var1);
                 r = Accessory.toBinary(tmp, 7);
                 for (int i = 0; i < 7; i++) {
@@ -565,7 +494,6 @@ public class AuxilarySimpleAutotracing {
                 /* THAT IS VERY WRONG SOLUTION */
                 break;
 
-            case "P_RES":
             case "RES":
                 String var = getOnlyVariableValue(ni);
                 Accessory.printLog("name " + name);
@@ -707,7 +635,7 @@ public class AuxilarySimpleAutotracing {
 
                 break;
 
-            case "RES":
+            /* case "RES":
                 parameter = auxisa.getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
@@ -727,24 +655,23 @@ public class AuxilarySimpleAutotracing {
                         default:
                             /*Autotracing.getAutotracingTool().createAndShowGUI(false);
                             assert false;*/
-                            throw new FunctionalException("Some problems with resistors");
+ /*   throw new FunctionalException("Some problems with resistors");
                         //break;
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
-                break;
-
-            case "P_RES":
+                break;*/
+            case "RES":
                 parameter = auxisa.getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
                     String index = parameter.substring(parameter.length() - 2, parameter.length());
                     switch (shortNamePin) {
-                        case "r1":
-                        case "r1_p":
+                        case "R1":
+                        case "R2":
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-
-                        case "r2":
-                        case "r2_p":
+                            break;
+                        case "R3":
+                        case "R4":
                             switch (index) {
                                 case "PO":
                                     index = "PP";
@@ -759,9 +686,6 @@ public class AuxilarySimpleAutotracing {
                                     index = "PQ";
                                     break;
                                 default:
-                                    /*Autotracing.getAutotracingTool().createAndShowGUI(false);
-                                    assert false;
-                                    break;*/
                                     throw new FunctionalException("Some problems with resistors");
                             }
                             str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
@@ -961,6 +885,14 @@ public class AuxilarySimpleAutotracing {
                         + paramMap.get("FREQ") + " " + paramMap.get("TD") + " "
                         + paramMap.get("THETA") + " )";
                 break;
+                case "vsin_AC":
+                //V$(node_name) $(VSP) 0 sin ( $(VO) $(VA) $(FREQ) $(TD) $(THETA)) AC $(AC)
+                source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 sin ("
+                        + paramMap.get("VO") + " " + paramMap.get("VA") + " "
+                        + paramMap.get("FREQ") + " " + paramMap.get("TD") + " "
+                        + paramMap.get("THETA") + " )" + "AC" + " " + paramMap.get("AC");
+                
+                break;
             case "vpwl":
                 //V$(node_name) $(VSP) 0 PWL $(VAL)
                 source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 "
@@ -1022,5 +954,43 @@ public class AuxilarySimpleAutotracing {
 
     public HashSet<Pair<NodeInst, String>> getSPMList() {
         return SPMList;
+    }
+
+    /*ArrayList<ReadFile> blockCollection = new ArrayList<>();
+    /*ReadFile blockObject = new ReadFile(say[0]); //Создать объект
+    blockObject.addPort(say[1], say[2]); //добавить коллекцию в объект */
+    /**
+     *
+     * @author Astepanov
+     */
+    private class ReadFile {
+
+        private final ArrayList<Pair<String, String>> portColl = new ArrayList<>();
+
+        private final String name;
+
+        public ReadFile(String name) {
+            this.name = name;
+        }
+
+        public void addPort(String port, String str) {
+            Pair<String, String> portt = new Pair<>(port, str);
+            portColl.add(portt);
+        }
+
+        /*try {
+            File file = new File("C:/test/test.txt");
+            FileReader fr = new FileReader(file);
+            BufferedReader reader = new BufferedReader(fr);
+            String line = reader.readLine();
+            while (line != null) {
+                line = reader.readLine();
+                String[] say = line.split(" ");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 }
