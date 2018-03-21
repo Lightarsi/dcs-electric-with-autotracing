@@ -21,92 +21,102 @@
 <!-- You should have received a copy of the GNU General Public License -->
 <!-- along with this program.  If not, see http://www.gnu.org/licenses/ -->
 
-<project basedir="." default="jar" name="electric">
+<project basedir="C:/electric_source_035" default="jar" name="electric">
 
-	<!-- *********************************** MAIN TARGET *********************************** -->
+    <!-- *********************************** MAIN TARGET *********************************** -->
 
-	<target name="jar" depends="initialize" description="Make Jar file incrementally">
-		<property name="jarname" value="electric.jar" />
-		<echo message="Building ${jarname}" />
-		<mkdir dir="${antBuild}"/>
-		<antcall target="compile" />
-		<antcall target="copyOrg" />
-                <antcall target="copyScala" />
-                <antcall target="copyJava" />
-		<antcall target="createJARFile" />
-	</target>
+    <target name="jar" depends="initialize" description="Make Jar file incrementally">
+        <property name="jarname" value="electric.jar" />
+        <echo message="Building ${jarname}" />
+        <mkdir dir="${antBuild}"/>
+        <antcall target="compile" />
+        <antcall target="copyOrg" />
+        <antcall target="copyScala" />
+        <antcall target="copyJava" />
+        <antcall target="createJARFile" />
+        <antcall target="deleteAntBuild" />
+             
+    </target>
 
-	<!-- *********************************** SUPPORT TARGETS *********************************** -->
+    <!-- *********************************** SUPPORT TARGETS *********************************** -->
 
-	<target name="initialize" description="Initiaize file locations, JAR locations, and the Electric version">
-		<property name="packaging"          value="${basedir}" />
-		<property name="antBuild"           value="${packaging}/antBuild" />
-		<property name="ElectricJavaLoc"    value="${basedir}" />
+    <target name="initialize" description="Initiaize file locations, JAR locations, and the Electric version">
+        <property name="packaging"          value="${basedir}" />
+        <property name="antBuild"           value="${packaging}/antBuild" />
+        <property name="ElectricJavaLoc"    value="${basedir}" />
 
-		<!-- the location of various JAR files -->
-		<property name="org"                value="${packaging}/org" />
+        <!-- the location of various JAR files -->
+        <property name="org"                value="${packaging}/org" />
 
-		<!-- does the build directory already exist? -->
-		<condition property="buildDirExists">
-			<available file="${antBuild}" type="dir"/>
-		</condition>
+        <!-- does the build directory already exist? -->
+        <condition property="buildDirExists">
+            <available file="${antBuild}" type="dir"/>
+        </condition>
 
-		<!-- get the Electric version -->
-		<loadfile srcFile="${ElectricJavaLoc}/com/sun/electric/database/text/Version.java" property="version">
-			<filterchain>
-				<linecontains> <contains value="ELECTRIC_VERSION = "/> </linecontains>
-				<tokenfilter>
-					<replacestring from="public static final String ELECTRIC_VERSION = &quot;" to=""/>
-					<replacestring from="&quot;;" to=""/>
-					<deletecharacters chars="\t "/>
-				</tokenfilter>
-				<striplinebreaks/>
-			</filterchain>
-		</loadfile>
-	</target>
+        <!-- get the Electric version -->
+        <loadfile srcFile="${ElectricJavaLoc}/com/sun/electric/database/text/Version.java" property="version">
+            <filterchain>
+                <linecontains> 
+                    <contains value="ELECTRIC_VERSION = "/> 
+                </linecontains>
+                <tokenfilter>
+                    <replacestring from="public static final String ELECTRIC_VERSION = &quot;" to=""/>
+                    <replacestring from="&quot;;" to=""/>
+                    <deletecharacters chars="\t "/>
+                </tokenfilter>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+    </target>
 
-	<target name="compile" description="Compile Electric">
-		<javac debug="true" includeantruntime="false" destdir="${antBuild}" srcdir="${ElectricJavaLoc}"
-			   fork="true" memoryMaximumSize="1024m" source="1.8" target="1.8">
-			<classpath>
-				<pathelement location="${packaging}" />
-				<pathelement location="${AppleJava}" />
-			</classpath>
-		</javac>
-		<copy todir="${antBuild}/com">
-			<fileset dir="${ElectricJavaLoc}/com" includes="**/*.jelib,**/*.prm,**/*.xml,**/*.dtd,**/*.xsd,**/*.gif,**/*.html,**/*.png,**/toc.txt,**/*.wav" />
-		</copy>
-	</target>
+    <target name="compile" description="Compile Electric">
+        <javac debug="true" includeantruntime="false" destdir="${antBuild}" srcdir="${ElectricJavaLoc}"
+               fork="true" memoryMaximumSize="1024m" source="1.8" target="1.8">
+            <classpath>
+                <pathelement location="${packaging}" />
+                <pathelement location="${AppleJava}" />
+            </classpath>
+        </javac>
+        <copy todir="${antBuild}/com">
+            <fileset dir="${ElectricJavaLoc}/com" includes="**/*.jelib,**/*.prm,**/*.xml,**/*.dtd,**/*.xsd,**/*.gif,**/*.html,**/*.png,**/toc.txt,**/*.wav" />
+        </copy>
+    </target>
 
-	<target name="copyOrg" description="Copy Jar files for logging">
-		<copy todir="${antBuild}/org">
-			<fileset dir="${packaging}/org" />
-		</copy>
-	</target>
+    <target name="copyOrg" description="Copy Jar files for logging">
+        <copy todir="${antBuild}/org">
+            <fileset dir="${packaging}/org" />
+        </copy>
+    </target>
         
-        <target name="copyScala" description="Copy Scala files to jar">
-		<copy todir="${antBuild}/scala">
-			<fileset dir="${packaging}/scala" />
-		</copy>
-	</target>
+    <target name="copyScala" description="Copy Scala files to jar">
+        <copy todir="${antBuild}/scala">
+            <fileset dir="${packaging}/scala" />
+        </copy>
+    </target>
         
-        <target name="copyJava" description="Copy Java source files to jar">
-		<copy todir="${antBuild}/com">
-			<fileset dir="${packaging}/com" />
-		</copy>
-	</target>
+    <target name="copyJava" description="Copy Java source files to jar">
+        <copy todir="${antBuild}/com">
+            <fileset dir="${packaging}/com" />
+        </copy>
+    </target>
 
-	<target name="createJARFile" description="Make the JAR file">
-		<jar basedir="${antBuild}" compress="true" jarfile="${packaging}/${jarname}" manifest="${packaging}/META-INF/MANIFEST.MF" />
-	</target>
+    <target name="createJARFile" description="Make the JAR file">
+        <jar basedir="${antBuild}" compress="true" jarfile="${packaging}/${jarname}" manifest="${packaging}/META-INF/MANIFEST.MF" />
+    </target>
 
-	<target name="clean" depends="initialize" description="Clean all build products">
-		<delete dir="${antBuild}" />
-		<delete quiet="false">
-			<fileset dir=".">
-				<include name="electric*.jar" />
-			</fileset>
-		</delete>
-	</target>
+    <target name="clean" depends="initialize" description="Clean all build products">
+        <delete dir="${antBuild}" />
+        <delete quiet="false">
+            <fileset dir=".">
+                <include name="electric*.jar" />
+            </fileset>
+        </delete>
+    </target>
+        
+    <target name="deleteAntBuild" description="delete faile antBuild">
+        <delete includeEmptyDirs="true">
+            <fileset dir="antBuild"/>
+        </delete>
+    </target>
 
 </project>

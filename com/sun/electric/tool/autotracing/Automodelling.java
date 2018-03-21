@@ -234,19 +234,60 @@ public class Automodelling {
             }
         }
 
+        @SuppressWarnings("null")
         private void addModellingParametersToModelScheme(Cell autoCell) {
+
             Cell basicCell = Job.getUserInterface().getCurrentCell();
 
-            NodeInst paramNode = null;
+            NodeInst paramNode_1 = null;
+            NodeInst paramNode_2 = null;
             NodeInst modelParamNode = null;
             Iterator<NodeInst> itrNod = autoCell.getNodes();
+            // there is a patch
             while (itrNod.hasNext()) {
+
+                NodeInst ni = itrNod.next();
+                if (ni.toString().contains("5400TP035_core{")) {
+                    paramNode_1 = ni;
+                }
+                if (ni.toString().contains("5400TP035_core_ac")) {
+                    paramNode_2 = ni;
+                }
+            }
+
+            itrNod = basicCell.getNodes();
+            while (itrNod.hasNext()) {
+                NodeInst ni = itrNod.next();
+                if (ni.toString().contains("5400TP035_core")) {
+                    modelParamNode = ni;
+                    break;
+                }
+            }
+            assert paramNode_1 != null;
+            assert modelParamNode != null;
+
+            if (paramNode_2 != null) {
+                if (((paramNode_1.toString().contains("5400TP035_core{")) && (modelParamNode.toString().contains("5400TP035_core{")))) {
+                    paramNode_2.kill();
+                    paramNode_1.copyVarsFrom(modelParamNode);
+                }
+                if (((paramNode_2.toString().contains("5400TP035_core_ac")) && (modelParamNode.toString().contains("5400TP035_core_ac")))) {
+                    paramNode_1.kill();
+                    paramNode_2.copyVarsFrom(modelParamNode);
+                }
+            } else {
+                paramNode_1.copyVarsFrom(modelParamNode);
+            }
+
+            /* while (itrNod.hasNext()) {
                 NodeInst ni = itrNod.next();
                 if (ni.toString().contains("5400TP035_core")) {
                     paramNode = ni;
                     break;
                 }
             }
+            
+            
             itrNod = basicCell.getNodes();
             while (itrNod.hasNext()) {
                 NodeInst ni = itrNod.next();
@@ -257,8 +298,12 @@ public class Automodelling {
             }
             assert paramNode != null;
             assert modelParamNode != null;
-            paramNode.copyVarsFrom(modelParamNode);
+            if (paramNode == modelParamNode) {
+                paramNode.copyVarsFrom(modelParamNode);
+            } else {
+                paramNode.replace(modelParamNode.getProto(), ep, true, true, true);
+                paramNode.copyVarsFrom(modelParamNode);
+            }*/
         }
-
     }
 }
