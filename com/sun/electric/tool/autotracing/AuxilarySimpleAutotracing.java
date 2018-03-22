@@ -78,6 +78,7 @@ public class AuxilarySimpleAutotracing {
      * @param ni
      * @param pi
      * @return
+     * @throws java.io.IOException
      */
     public String dealWithBlock(NodeInst ni, PortInst pi) throws IOException, StepFailedException, FunctionalException {
         String name = ni.toString();

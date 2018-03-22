@@ -1,6 +1,6 @@
 /* Electric(tm) VLSI Design System
  *
- * File: AuxilarySimpleAutotracing.java
+ * File: BlockMapForGraph.java
  *
  * Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  *
@@ -20,11 +20,11 @@
 package com.sun.electric.tool.autotracing;
 
 /**
- * This class serves to unite blocks and real pin Names
+ * This class serves to unite blocks and real pin names.
  */
 public class BlockMapForGraph {
 
-    String str = null;
+    private String str;
 
     private static BlockMapForGraph blockMap;
 
@@ -39,7 +39,9 @@ public class BlockMapForGraph {
     }
 
     /**
-     * this method receives a shprtNamePin terurn real Pin number
+     * This method receives a shortNamePin returns real Pin number
+     * @param shortNamePin
+     * @return 
      */
     public String getAdrForCau(String shortNamePin) {
         switch (shortNamePin) {
