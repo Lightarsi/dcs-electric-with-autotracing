@@ -415,8 +415,6 @@ public class Accessory {
         deltaTime = (System.currentTimeMillis() - timeStart2);
         timeStart2 = System.currentTimeMillis();
         System.out.println(deltaTime + " ms");
-        /*write("C:/CYGELENG/text.txt", s);
-        write("C:/CYGELENG/text.txt", String.valueOf(deltaTime));*/
     }
 
     /**
@@ -439,7 +437,7 @@ public class Accessory {
             NodeInst ni = itr.next();
             if (ni.toString().contains("INPUT")) {
                 inputList.add(ni);
-                break;
+                //break;
             }
         }
         NodeInst[] nia = new NodeInst[0];
