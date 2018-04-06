@@ -74,9 +74,10 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
         Init(VERTEX_MAX);
         for (Chain chain : noggToCopy.getVertexArray()) {
             if (chain == null) {
-                continue;
+                this.vertexArray[vertexCount++] = null;
+            } else {
+                this.vertexArray[vertexCount++] = new Chain(chain);
             }
-            this.vertexArray[vertexCount++] = new Chain(chain);
         }
     }
 
@@ -532,7 +533,7 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
      * @param count
      * @Param count is the number of vertex that should be deleted,
      */
-    protected void affectVertex(int count) {
+    public void affectVertex(int count) {
         assert count >= 0;
         if (vertexArray[count] != null) {
             Accessory.printLog("Affected Vertex " + vertexArray[count].getLine());

@@ -600,13 +600,13 @@ public class AuxilarySimpleAutotracing {
 
     /**
      * Method to check if block of this portInst has output or all possible
-     * traces are used.
+     * traces are used. true if you can trace, false if outs are blocked
      *
      * @param pi
      * @param nogg
      * @return
      */
-    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg) throws FunctionalException {
+    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg, String secondPort) throws FunctionalException {
         assert pi != null;
         String name = pi.getNodeInst().toString();
         String parameter;
@@ -635,42 +635,13 @@ public class AuxilarySimpleAutotracing {
                             index = "PV";
                             break;
                         default:
-                            //Autotracing.getAutotracingTool().createAndShowGUI(false);
                             throw new FunctionalException("Some problems with capacitors");
-                        /*assert false;
-                            break;*/
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
 
                 break;
 
-            /* case "RES":
-                parameter = auxisa.getParameter(pi.getNodeInst().toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (index) {
-                        case "PO":
-                            index = "PP";
-                            break;
-                        case "PP":
-                            index = "PO";
-                            break;
-                        case "PQ":
-                            index = "PR";
-                            break;
-                        case "PR":
-                            index = "PQ";
-                            break;
-                        default:
-                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
-    throw new FunctionalException("Some problems with resistors");
-                        //break;
-                    }
-                    str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                }
-                break;*/
             case "RES":
                 parameter = auxisa.getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {

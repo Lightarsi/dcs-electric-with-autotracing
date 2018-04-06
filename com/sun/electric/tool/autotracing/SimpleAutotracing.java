@@ -22,6 +22,7 @@ package com.sun.electric.tool.autotracing;
 import com.sun.electric.database.hierarchy.Cell;
 import com.sun.electric.database.topology.NodeInst;
 import com.sun.electric.database.topology.PortInst;
+import com.sun.electric.tool.Job;
 
 import com.sun.electric.tool.user.CellChangeJobs;
 
@@ -63,7 +64,7 @@ public class SimpleAutotracing {
     private static Scheme scheme;
     private static AuxilarySimpleAutotracing auxisa;
     private static SimpleAutotracing simpleAutotracing;
-    private static final ExecutorService service = Executors.newFixedThreadPool(3);
+    private static final ExecutorService service = Executors.newFixedThreadPool(8);
 
     /**
      *
@@ -192,6 +193,7 @@ public class SimpleAutotracing {
      */
     private void initStart(boolean doDelete) throws IOException, StepFailedException, FunctionalException {
         scheme.resetScheme();
+        prepareSPMBlocks(nogg, doDelete);
         NodeInst[] startNi = Accessory.getStartingNodeInst();
         for (NodeInst ni : startNi) {
             if (!usedNodeList.contains(ni.toString())) {
@@ -321,8 +323,13 @@ public class SimpleAutotracing {
                 }
             }
             if (!usedNodeList.contains(pi.getNodeInst().toString())) {
-                nodeList.add(pi.getNodeInst());
-                usedNodeList.add(pi.getNodeInst().toString());
+                if (pi.getNodeInst().toString().contains("SPM")) {
+                    nodeList.addFirst(pi.getNodeInst());
+                    usedNodeList.add(pi.getNodeInst().toString());
+                } else {
+                    nodeList.add(pi.getNodeInst());
+                    usedNodeList.add(pi.getNodeInst().toString());
+                }
             }
             String secondPort = auxisa.dealWithBlock(pi.getNodeInst(), pi);
             String nextBlock;
@@ -376,7 +383,10 @@ public class SimpleAutotracing {
         }
     }
 
-    private int deikstraMultiThreads(ArrayList<Integer> firstChainsList, PortInst pi, String secondPort, String param) throws ExecutionException, InterruptedException, StepFailedException, FunctionalException {
+    /**
+     * Deikstra method was paralleled by 3 threads (max 8 in SPM).
+     */
+    private int deikstraMultiThreads(ArrayList<Integer> firstChainsList, PortInst pi, String secondPort, String param) throws ExecutionException, InterruptedException, StepFailedException {
         final AtomicInteger pathLength = new AtomicInteger(100000);
         final AtomicInteger firstChain = new AtomicInteger(-1);
         List<Future> futures = new ArrayList<>();
@@ -393,6 +403,7 @@ public class SimpleAutotracing {
                 }
             }));
         }
+
         for (Future f : futures) {
             f.get();
         }
@@ -405,11 +416,11 @@ public class SimpleAutotracing {
                 continue;
             }
             if (pathLength.get() > pathL) {
-                if (auxisa.checkBlockForExistingOutput(pi, nogg)) {
-                    pathLength.set(pathL);
-                    Accessory.printLog(String.valueOf(pathLength));
-                    firstChain.set(firstC);
-                }
+                //if (auxisa.checkBlockForExistingOutput(pi, nogg, secondPort)) {
+                pathLength.set(pathL);
+                Accessory.printLog(String.valueOf(pathLength));
+                firstChain.set(firstC);
+                //}
             }
         }
 
@@ -417,6 +428,55 @@ public class SimpleAutotracing {
             throw new StepFailedException("So sad. Can't do autotracing through this way.");
         }
         return firstChain.get();
+    }
+
+    /**
+     * Method to get array of INPUT-like chain (PADDR.PX1-6).
+     *
+     * @return
+     */
+    public static void prepareSPMBlocks(NonOrientedGlobalGraph nogg, boolean doDelete) {
+        ArrayDeque<String> firstFiveSPMs = new ArrayDeque<>();
+        firstFiveSPMs.add("SPM<2466.Y6");
+        firstFiveSPMs.add("SPM<8502.Y6");
+        firstFiveSPMs.add("SPM<14538.Y6");
+        firstFiveSPMs.add("SPM<20574.Y6");
+        firstFiveSPMs.add("SPM<26610.Y6");
+        // .Y6 coz setParameter requires nextBlock variable which contains port
+        Cell curcell = Job.getUserInterface().getCurrentCell();
+        Iterator<NodeInst> itr = curcell.getNodes();
+        ArrayList<NodeInst> spmList = new ArrayList<>();
+        while (itr.hasNext()) {
+            NodeInst ni = itr.next();
+            if (ni.toString().contains("SPM")) {
+                spmList.add(ni);
+            }
+        }
+        for (NodeInst spm : spmList) {
+            if (firstFiveSPMs.isEmpty()) {
+                break;
+            }
+            ArrayList<String> portList = new ArrayList<>();
+            String parameter = firstFiveSPMs.pollFirst();
+            auxisa.setParameter(spm, parameter);
+
+            Iterator<PortInst> piItr = spm.getPortInsts();
+            while (piItr.hasNext()) {
+                PortInst nextPi = piItr.next();
+                if (nextPi.hasConnections()) {
+                    String piStr = nextPi.toString();
+                    String portName = piStr.substring(piStr.indexOf(".") + 1, piStr.lastIndexOf("'"));
+                    portList.add(portName);
+                }
+            }
+            if (doDelete) {
+                for (String port : portList) {
+                    String newParam = parameter.substring(0,parameter.indexOf("."));
+                    System.out.println(newParam + "." + port);
+                    nogg.affectVertex(nogg.findStartingPoint(newParam+"."+port)); // affect all connected ports
+                }
+            }
+        }
     }
 
     /**
