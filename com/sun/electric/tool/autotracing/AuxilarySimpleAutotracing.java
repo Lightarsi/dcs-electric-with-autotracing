@@ -600,13 +600,13 @@ public class AuxilarySimpleAutotracing {
 
     /**
      * Method to check if block of this portInst has output or all possible
-     * traces are used.
+     * traces are used. true if you can trace, false if outs are blocked
      *
      * @param pi
      * @param nogg
      * @return
      */
-    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg) throws FunctionalException {
+    public boolean checkBlockForExistingOutput(PortInst pi, NonOrientedGlobalGraph nogg, String secondPort) throws FunctionalException {
         assert pi != null;
         String name = pi.getNodeInst().toString();
         String parameter;
@@ -635,42 +635,13 @@ public class AuxilarySimpleAutotracing {
                             index = "PV";
                             break;
                         default:
-                            //Autotracing.getAutotracingTool().createAndShowGUI(false);
                             throw new FunctionalException("Some problems with capacitors");
-                        /*assert false;
-                            break;*/
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
 
                 break;
 
-            /* case "RES":
-                parameter = auxisa.getParameter(pi.getNodeInst().toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (index) {
-                        case "PO":
-                            index = "PP";
-                            break;
-                        case "PP":
-                            index = "PO";
-                            break;
-                        case "PQ":
-                            index = "PR";
-                            break;
-                        case "PR":
-                            index = "PQ";
-                            break;
-                        default:
-                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
-    throw new FunctionalException("Some problems with resistors");
-                        //break;
-                    }
-                    str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                }
-                break;*/
             case "RES":
                 parameter = auxisa.getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
@@ -708,6 +679,44 @@ public class AuxilarySimpleAutotracing {
                 }
             case "ION":
                 break;
+
+            /*case "SPM1":
+            case "SPM2":
+            case "SPM3":
+            case "SPM4":
+            case "SPM5":
+            case "SPM6":
+            case "SPM7":
+            case "SPM8":
+            case "SPM9":
+                NodeInst thisNi = pi.getNodeInst();
+                parameter = auxisa.getParameter(thisNi.toString());
+                System.out.println("secondPort " + secondPort);
+                if (parameter != null) {
+                    ArrayList<String> checkList = new ArrayList<>();
+                    Iterator<PortInst> piItr = thisNi.getPortInsts();
+                    while (piItr.hasNext()) {
+                        PortInst nextPi = piItr.next();
+                        //System.out.println(nextPi.toString());
+                        //port 'symbol:SPM1{ic}[SPM1@0].Y20'
+                        if (nextPi.hasConnections()) {
+                            String piStr = nextPi.toString();
+                            String portName = piStr.substring(piStr.indexOf("."), piStr.lastIndexOf("'"));
+                            checkList.add(portName);
+                        }
+                    }
+
+                    for (String check : checkList) {
+                        String findCheck = parameter + ".*" + check + "$";
+                        System.out.println("findCheck " + findCheck);
+                        if ((nogg.findStartingPoint(findCheck)) == -1) {
+                            return false;
+                        }
+                    }
+                    break;
+                } else {
+                    
+                }*/
         }
         return (str == null) || (nogg.findStartingPoint(str)) != -1;
     }
