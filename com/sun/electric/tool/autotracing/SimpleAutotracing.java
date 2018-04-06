@@ -393,6 +393,7 @@ public class SimpleAutotracing {
         HashMap<Integer, Pair<String, Integer>> map = new HashMap<>();
 
         for (int firstC : firstChainsList) {
+            System.out.println("firstC " + firstC);
             futures.add(service.submit(new Runnable() {
                 public void run() {
                     NonOrientedGlobalGraph noggX = new NonOrientedGlobalGraph(nogg);
@@ -457,6 +458,10 @@ public class SimpleAutotracing {
                 break;
             }
             ArrayList<String> portList = new ArrayList<>();
+
+            if (firstFiveSPMs.isEmpty()) {
+                break;
+            }
             String parameter = firstFiveSPMs.pollFirst();
             auxisa.setParameter(spm, parameter);
 
