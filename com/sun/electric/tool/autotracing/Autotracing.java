@@ -179,8 +179,7 @@ public class Autotracing extends Tool {
         /**
          * Method the progress bar appear and disappear,
          *
-         * @Param start = true to show and false to drop progress bar, SHOULD BE
-         * UNIT TEST HERE
+         * @Param start = true to show and false to drop progress bar.
          */
         public void createAndShowGUI(boolean start) {
             if (start) {

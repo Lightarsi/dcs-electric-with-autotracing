@@ -64,7 +64,7 @@ public class SimpleAutotracing {
     private static Scheme scheme;
     private static AuxilarySimpleAutotracing auxisa;
     private static SimpleAutotracing simpleAutotracing;
-    private static final ExecutorService service = Executors.newFixedThreadPool(8);
+    private static final ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()+1);
 
     /**
      *
@@ -601,7 +601,7 @@ public class SimpleAutotracing {
     }
 
     /**
-     * Check if it port was used to avoud double-running.
+     * Check if it port was used to avoid double-running.
      *
      * @param pi
      * @return

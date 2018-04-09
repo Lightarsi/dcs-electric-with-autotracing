@@ -34,14 +34,11 @@ import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
 import com.sun.electric.database.topology.PortInst;
-import com.sun.electric.database.EditingPreferences;
 import com.sun.electric.database.hierarchy.Cell;
 import com.sun.electric.tool.Job;
 import com.sun.electric.database.topology.ArcInst;
 import com.sun.electric.database.topology.NodeInst;
 import com.sun.electric.database.topology.Connection;
-import com.sun.electric.tool.JobException;
-import com.sun.electric.tool.user.User;
 import java.util.HashSet;
 
 /**
@@ -221,9 +218,9 @@ public class Accessory {
      */
     public static String parsePortAndCut(String port) {
         assert port != null;
-        String s1 = port.substring(port.indexOf(":")+1, port.indexOf("{"));
+        String s1 = port.substring(port.indexOf(":") + 1, port.indexOf("{"));
         String s2 = port.substring(port.indexOf("."), port.lastIndexOf("'"));
-        return (s1+s2);
+        return (s1 + s2);
     }
 
     /**
@@ -237,7 +234,7 @@ public class Accessory {
         return port.substring(0, port.indexOf(".")); // name smth like CB<7454
         // port '5400TP035:ION{ic}[ION<1].ION'
     }
-    
+
     /**
      * method implemets parsing of Port String to get Block Name.
      *
@@ -246,7 +243,7 @@ public class Accessory {
      */
     public static String parsePortToBlockOld(String port) {
         assert port != null;
-        return port.substring(port.indexOf(":")+1, port.indexOf("{")); // name smth like CB<7454
+        return port.substring(port.indexOf(":") + 1, port.indexOf("{")); // name smth like CB<7454
         // port '5400TP035:ION{ic}[ION<1].ION'
     }
 
@@ -260,7 +257,7 @@ public class Accessory {
         assert port != null;
         return port.substring(port.indexOf(".") + 1, port.length()); // name smth like CB<7454
     }
-    
+
     /**
      * method implemets parsing of Port String to get Port Name.
      *
@@ -404,17 +401,15 @@ public class Accessory {
     /**
      * Timer starts here.
      */
-    public static void timeStart() {
-        timeStart = System.currentTimeMillis();
-    }
-
-    /**
-     * Timer starts here.
-     */
     public static void timeStart(String s) {
-        deltaTime = (System.currentTimeMillis() - timeStart2);
-        timeStart2 = System.currentTimeMillis();
-        System.out.println(deltaTime + " ms");
+        if (timeStart2 != 0L) {
+            deltaTime = (System.currentTimeMillis() - timeStart2);
+            timeStart2 = System.currentTimeMillis();
+            System.out.println(deltaTime + " ms");
+        } else {
+            timeStart2 = System.currentTimeMillis();
+        }
+
     }
 
     /**
@@ -528,78 +523,4 @@ public class Accessory {
             }
         }
     }
-
-    public static void setName(EditingPreferences ep, ArrayList<Pair<ArcInst, String>> arcList) {
-        for (Pair<ArcInst, String> arc : arcList) {
-            ArcInst arcTo = arc.getFirstObject();
-            String textTo = arc.getSecondObject();
-            new ChangeArc(arcTo, textTo);
-        }
-
-    }
-
-    private static class ChangeArc extends Job {
-
-        private ArcInst ai;
-        private String newName;
-
-        protected ChangeArc(ArcInst ai, String newName) {
-            super("Modify Arc", User.getUserTool(), Job.Type.CHANGE, null, null, Job.Priority.USER);
-            this.ai = ai;
-            this.newName = newName;
-            startJob();
-        }
-
-        @Override
-        public boolean doIt() throws JobException {
-            EditingPreferences ep = getEditingPreferences();
-
-            if (newName != null) {
-                if (newName.length() == 0) {
-                    newName = null;
-                }
-                ai.setName(newName, ep);
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Method to get all net names near highlighted block
-     */
-    /*private static ArrayList<Pair<ArcInst, String>> setName() {
-        ArrayList<Pair<ArcInst, String>> arcList = new ArrayList<>();
-
-        EditWindow wnd = EditWindow.needCurrent();
-        if (wnd == null) {
-            return null;
-        }
-        Highlighter highlighter = wnd.getHighlighter();
-        List<NodeInst> node = highlighter.getHighlightedNodes();
-
-        for (NodeInst ni : node) {
-            Iterator<PortInst> thePorts = ni.getPortInsts();
-
-            //for (ArcInst arc : theArcs) {
-            while (thePorts.hasNext()) {
-                PortInst pi1 = thePorts.next();
-                String port = pi1.toString();
-                String str1 = port.substring(port.indexOf("'") + 1, port.indexOf("{"));
-                String str2 = port.substring(port.lastIndexOf(".") + 1, port.lastIndexOf("'"));
-                String out = str1 + "." + str2;
-                Iterator<Connection> cntnItr = pi1.getConnections();
-                if (cntnItr.hasNext()) {
-                    Connection cntn = cntnItr.next();
-                    ArcInst ai = cntn.getArc();
-                    Pair<ArcInst, String> pair = new Pair<>(ai, out);
-                    arcList.add(pair);
-                }
-            }
-
-            highlighter.clear();
-            highlighter.finished();
-        }
-
-        return arcList;
-    }*/
 }

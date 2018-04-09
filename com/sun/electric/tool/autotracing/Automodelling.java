@@ -234,7 +234,6 @@ public class Automodelling {
             }
         }
 
-        @SuppressWarnings("null")
         private void addModellingParametersToModelScheme(Cell autoCell) {
 
             Cell basicCell = Job.getUserInterface().getCurrentCell();
