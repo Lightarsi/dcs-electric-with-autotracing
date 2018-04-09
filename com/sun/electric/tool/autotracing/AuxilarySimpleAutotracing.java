@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -47,14 +49,11 @@ public class AuxilarySimpleAutotracing {
 
     private static BlockMapForGraph blockMap;
     private static AuxilarySimpleAutotracing auxisa;
+    
 
-    private AuxilarySimpleAutotracing() {
+    private AuxilarySimpleAutotracing() {           
     }
 
-    /**
-     *
-     * @return
-     */
     public static AuxilarySimpleAutotracing getAuxilaryOnlyObject() {
         if (auxisa == null) {
             auxisa = new AuxilarySimpleAutotracing();
@@ -62,14 +61,11 @@ public class AuxilarySimpleAutotracing {
         return auxisa;
     }
 
-    /**
-     *
-     */
     public void resetAuxilary() {
         SPMList = new HashSet<>();
         sourceList = new ArrayList<>();
         keyHashMap = new HashMap<>();
-        blockMap = BlockMapForGraph.getBlockMapForGraph();//тут строка
+        blockMap = BlockMapForGraph.getBlockMapForGraph();
     }
 
     /**
@@ -80,9 +76,12 @@ public class AuxilarySimpleAutotracing {
      * @return
      * @throws java.io.IOException
      */
+
     public String dealWithBlock(NodeInst ni, PortInst pi) throws IOException, StepFailedException, FunctionalException {
+        blockMap = BlockMapForGraph.getBlockMapForGraph();
         String name = ni.toString();
-        String parameter;
+        int indexName, indexPin;
+        String parameter = null;
         String shortName = name.substring(name.indexOf(":") + 1, name.lastIndexOf("{"));
         String shortNamePin = "";
         if (pi != null) {
@@ -91,272 +90,163 @@ public class AuxilarySimpleAutotracing {
         String str = null;
         Accessory.printLog("shortName = " + shortName);
 
-        switch (shortName) {
-            case "INPUT":
-                Iterator<PortInst> itrPi = ni.getPortInsts();
-                while (itrPi.hasNext()) {
-                    PortInst piS = itrPi.next();
-                    String port = Accessory.parsePortToPortOld(piS.toString());
-                    if (port.equals("source")) {
-                        addSourceWithSpiceCode(piS, String.valueOf(getPaddrVariableValue(ni)));
-                    }
-                }
-                str = "PAD";
-                if (getPaddrVariableValue(ni) != null) {
-                    str += "DR<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\."; // { needed to avoid being equal PADDR<18 and PADDR<180
-
-                }
-                Accessory.printLog("str = " + str);
-                return str;
-            //break;
-
-            case "OUTPUT_ADR":
-            case "OUTPUT_DDR":
-            case "OUTPUT":
-                str = "PAD";
-                if (getPaddrVariableValue(ni) != null) {
-                    str = "<" + String.valueOf(getPaddrNumber(getPaddrVariableValue(ni))) + "\\.";
-                }
-                break;
-
-            case "CAU":
-                str = blockMap.getAdrForCau(shortNamePin);
-                break;
-
-            case "CAU_COMP":
-                str = blockMap.getAdrForCauComp(shortNamePin);
-                break;
-
-            case "CAU_POS_FB":
-                str = blockMap.getAdrForCauPosFb(shortNamePin);
-                break;
-
-            case "CAU_NEG_FB":
-                str = blockMap.getAdrForCauNegFb(shortNamePin);
-                break;
-
-            case "PAU":
-                str = blockMap.getAdrForPau(shortNamePin);
-                break;
-
-            case "PAU_DIFF":
-                str = blockMap.getAdrForPauDiff(shortNamePin);
-                break;
-
-            case "PAU_DIFF_FB":
-                str = blockMap.getAdrForPauDiffFb(shortNamePin);
-                break;
-
-            case "PAU_NEG_FB":
-                str = blockMap.getAdrForPauNegFb(shortNamePin);
-                break;
-
-            case "PAU_COMP":
-                str = blockMap.getAdrForPauComp(shortNamePin);
-                break;
-
-            /* case "CAP":
-                if (pi == null) {
-                    throw new StepFailedException("Null reference in dealWithBlock.");
-                }
-                NodeInst niCap = pi.getNodeInst();
-                parameter = getParameter(niCap.toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (index) {
-                        case "PX":
-                            index = "PY";
-                            break;
-                        case "PY":
-                            index = "PX";
-                            break;
-                        case "PV":
-                            index = "PZ";
-                            break;
-                        case "PZ":
-                            index = "PV";
-                            break;
-                    }
-                    str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                    Accessory.printLog("str = " + str);
-                    return str;
-                }
-
-                str = "PPC.*\\.P[XYVZ][123]";
-                Accessory.printLog("str = " + str);
-                return str;*/
-            case "CAP":
-                if (pi == null) {//check
-                    throw new StepFailedException("Null reference in dealWithBlock.");
-                }
-                NodeInst niP_Cap = pi.getNodeInst();
-                parameter = getParameter(niP_Cap.toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (shortNamePin) {
-                        /* case "C2": //check
-                        case "C1":
-                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                            Accessory.printLog("str = " + str);
-                            return str;*/
-                        case "C1":
-                        case "C2":
-                        case "c2":
-                        case "c1":
-                            switch (index) {
-                                case "PX":
-                                    index = "PY";
-                                    break;
-                                case "PY":
-                                    index = "PX";
-                                    break;
-                                case "PV":
-                                    index = "PZ";
-                                    break;
-                                case "PZ":
-                                    index = "PV";
-                                    break;
-                            }
-                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                            Accessory.printLog("str = " + str);
-                            return str;
-                    }
-                }
-                str = "PPC.*\\.P[XYVZ][123]";
-                Accessory.printLog("str = " + str);
-                return str;
-
-            /*case "RES":
-                parameter = getParameter(pi.getNodeInst().toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (index) {
-                        case "PO":
-                            index = "PP";
-                            break;
-                        case "PP":
-                            index = "PO";
-                            break;
-                        case "PQ":
-                            index = "PR";
-                            break;
-                        case "PR":
-                            index = "PQ";
-                            break;
-                    }
-                    str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                    Accessory.printLog("str = " + str);
-                    return str;
-                }
-                str = "PPC.*\\.P[OPRQ][123]";
-                Accessory.printLog("str = " + str);
-                return str;
+        if (blockMap.getCheckFile()) {
+            /*
+            * Check availability object
+            * Check size collection of object or check Existence collection of object
+            * if true then use creation  method object
              */
-            case "RES":
-                parameter = getParameter(pi.getNodeInst().toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (shortNamePin) {
-                        case "res1":
-                        case "r1":
-                        case "R1":
-                        case "R2":
-                            switch (index) {
-                                case "PO":
-                                    index = "PO";
-                                    break;
-                                case "PP":
-                                    index = "PO";
-                                    break;
-                                case "PQ":
-                                    index = "PQ";
-                                    break;
-                                case "PR":
-                                    index = "PQ";
-                                    break;
-                            }
-                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                            Accessory.printLog("str = " + str);
-                            return str;
+          
+            switch (shortName) {
+                case "INPUT":
+                    str = blockMap.getAdrForInput(ni);
+                    return str;
+                case "OUTPUT_ADR":
+                case "OUTPUT_DDR":
+                case "OUTPUT":
+                    str = blockMap.getAdrForOutput(ni);
+                    break;
+                case "CAP":
+                    str = blockMap.getAdrForCap(shortNamePin, pi, parameter);
+                    return str;
 
-                        case "R3":
-                        case "R4":
-                        case "res2":
-                        case "r2":
-                            switch (index) {
-                                case "PO":
-                                    index = "PP";
-                                    break;
-                                case "PP":
-                                    index = "PP";
-                                    break;
-                                case "PQ":
-                                    index = "PR";
-                                    break;
-                                case "PR":
-                                    index = "PR";
-                                    break;
-                            }
-                            str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                            Accessory.printLog("str = " + str);
-                            return str;
+                case "RES":
+                    str = blockMap.getAdrForRes(shortNamePin, pi, parameter);
+                    return str;
+
+                case "SPM":
+                case "SPM1":
+                case "SPM2":
+                case "SPM3":
+                case "SPM4":
+                case "SPM5":
+                case "SPM6":
+                case "SPM7":
+                case "SPM8":
+                case "SPM9":
+                    firstOfPair = ni;
+                    str = blockMap.getAdrForSPM(shortNamePin);
+                    break;
+
+                case "REF":
+                    for (BlockMapForGraph.ListPin nameElement : blockMap.getList()) {
+                        if (nameElement.getName().equals(shortName)) {
+                            str = nameElement.getStr().get(0);
+                            break;
+                        }
                     }
+                    return str;
+                case "VSS":
+                    for (BlockMapForGraph.ListPin nameElement : blockMap.getList()) {
+                        if (nameElement.getName().equals(shortName)) {
+                            str = nameElement.getStr().get(0);
+                            break;
+                        }
+                    }
+                    return str;
+                default:
+                    indexName = blockMap.searchIndexName(shortName, blockMap.getList());
+                    indexPin = blockMap.searchIndexPin(shortNamePin, blockMap.getList().get(indexName).getPin());
+                    str = blockMap.getList().get(indexName).getStr().get(indexPin);
+                    break;
+            }
+            assert str != null;
+            Accessory.printLog("str = " + str);
+            parameter = getParameter(ni.toString());
+            Accessory.printLog("parameter " + parameter);
+            if (parameter != null) {
+                return (parameter + str.substring(3, str.length()));
+            }
+            return str;
+        } else {
+            switch (shortName) {
+                case "INPUT":
+                    str = blockMap.getAdrForInput(ni);
+                    return str;
 
-                }
-                switch (shortNamePin) {
-                    case "R1":
-                    case "R2":
-                    case "res1":
-                    case "r1":
-                        str = "PPC.*\\.P[OQ][123]";  // str = "PPC.*\\.P[OQPR][123]";
-                        Accessory.printLog("str = " + str);
-                        return str;
+                case "OUTPUT_ADR":
+                case "OUTPUT_DDR":
+                case "OUTPUT":
+                    str = blockMap.getAdrForOutput(ni);
+                    break;
 
-                    case "R3":
-                    case "R4":
-                    case "res2":
-                    case "r2":
-                        str = "PPC.*\\.P[PR][123]";  // str = "PPC.*\\.P[OQPR][123]";
-                        Accessory.printLog("str = " + str);
-                        return str;
-                }
-                throw new FunctionalException("Precision resistors don't work.");
+                case "CAU":
+                    str = blockMap.getAdrForCau(shortNamePin);
+                    break;
 
-            case "SPM":
-            case "SPM1":
-            case "SPM2":
-            case "SPM3":
-            case "SPM4":
-            case "SPM5":
-            case "SPM6":
-            case "SPM7":
-            case "SPM8":
-            case "SPM9":
-                firstOfPair = ni;
-                str = "SPM.*" + shortNamePin + "$"; // { needed to avoid being equal .X1 and .X10
-                break;
+                case "CAU_COMP":
+                    str = blockMap.getAdrForCauComp(shortNamePin);
+                    break;
 
-            case "VSS":
-                str = "PPC.*\\.P[YV][123]";
-                Accessory.printLog("str = " + str);
-                return str;
+                case "CAU_POS_FB":
+                    str = blockMap.getAdrForCauPosFb(shortNamePin);
+                    break;
 
-            case "REF":
-                str = "ION.*\\.ION";
-                Accessory.printLog("str = " + str);
-                return str;
+                case "CAU_NEG_FB":
+                    str = blockMap.getAdrForCauNegFb(shortNamePin);
+                    break;
 
-            default:
-                Accessory.printLog("NOTHING HERE = " + str + " name " + shortNamePin);
+                case "PAU":
+                    str = blockMap.getAdrForPau(shortNamePin);
+                    break;
 
+                case "PAU_DIFF":
+                    str = blockMap.getAdrForPauDiff(shortNamePin);
+                    break;
+
+                case "PAU_DIFF_FB":
+                    str = blockMap.getAdrForPauDiffFb(shortNamePin);
+                    break;
+
+                case "PAU_NEG_FB":
+                    str = blockMap.getAdrForPauNegFb(shortNamePin);
+                    break;
+
+                case "PAU_COMP":
+                    str = blockMap.getAdrForPauComp(shortNamePin);
+                    break;
+
+                case "CAP":
+                    str = blockMap.getAdrForCap(shortNamePin, pi, parameter);
+                    return str;
+
+                case "RES":
+                    str = blockMap.getAdrForRes(shortNamePin, pi, parameter);
+                    return str;
+
+                case "SPM":
+                case "SPM1":
+                case "SPM2":
+                case "SPM3":
+                case "SPM4":
+                case "SPM5":
+                case "SPM6":
+                case "SPM7":
+                case "SPM8":
+                case "SPM9":
+                    firstOfPair = ni;
+                    str = blockMap.getAdrForSPM(shortNamePin);
+                    break;
+
+                case "VSS":
+                    str = blockMap.getAdrForVSS();
+                    return str;
+
+                case "REF":
+                    str = blockMap.getAdrForREF();
+                    return str;
+
+                default:
+                    Accessory.printLog("NOTHING HERE = " + str + " name " + shortNamePin);
+
+            }
+            assert str != null;
+            parameter = getParameter(ni.toString());
+            if (parameter != null) {
+                return (parameter + str.substring(3, str.length()));
+            }
+            return str;
         }
-        assert str != null;
-        Accessory.printLog("str = " + str);
-        parameter = getParameter(ni.toString());
-        if (parameter != null) {
-            return (parameter + str.substring(3, str.length()));
-        }
-        return str;
     }
 
     /**
@@ -594,7 +484,6 @@ public class AuxilarySimpleAutotracing {
                     addKey(nextBlock, 35);
                 }
                 break;
-
         }
     }
 
@@ -635,42 +524,12 @@ public class AuxilarySimpleAutotracing {
                             index = "PV";
                             break;
                         default:
-                            //Autotracing.getAutotracingTool().createAndShowGUI(false);
                             throw new FunctionalException("Some problems with capacitors");
-                        /*assert false;
-                            break;*/
                     }
                     str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
                 }
-
                 break;
 
-            /* case "RES":
-                parameter = auxisa.getParameter(pi.getNodeInst().toString());
-                if (parameter != null) {
-                    String index = parameter.substring(parameter.length() - 2, parameter.length());
-                    switch (index) {
-                        case "PO":
-                            index = "PP";
-                            break;
-                        case "PP":
-                            index = "PO";
-                            break;
-                        case "PQ":
-                            index = "PR";
-                            break;
-                        case "PR":
-                            index = "PQ";
-                            break;
-                        default:
-                            /*Autotracing.getAutotracingTool().createAndShowGUI(false);
-                            assert false;
-    throw new FunctionalException("Some problems with resistors");
-                        //break;
-                    }
-                    str = parameter.substring(0, parameter.length() - 2) + index + "[123]";
-                }
-                break;*/
             case "RES":
                 parameter = auxisa.getParameter(pi.getNodeInst().toString());
                 if (parameter != null) {
@@ -731,7 +590,7 @@ public class AuxilarySimpleAutotracing {
      * Method to get the PADDR number (<198) from number of
      * inout(2,4,6,19,21...).
      */
-    private int getPaddrNumber(Integer i) throws IOException, FunctionalException {
+    public int getPaddrNumber(Integer i) throws IOException, FunctionalException {
         try (BufferedReader padNumBuf = new BufferedReader(new FileReader(new File(Accessory.PAD_NUM)))) {
             boolean validNum = false;
             String line;
@@ -823,7 +682,7 @@ public class AuxilarySimpleAutotracing {
     /**
      * Method to get Variable's value from INPUT/OUTPUT nodeInst.
      */
-    private Integer getPaddrVariableValue(NodeInst ni) throws FunctionalException {
+    public Integer getPaddrVariableValue(NodeInst ni) throws FunctionalException {
         Iterator<Variable> itrVar = ni.getParameters();
         Variable var = itrVar.next();
         String value = var.getObject().toString();
@@ -843,10 +702,10 @@ public class AuxilarySimpleAutotracing {
     }
 
     /* Source section */
-    /**
+ /*
      * Method to get SpiceCode from inout source port and inout parameter.
      */
-    private void addSourceWithSpiceCode(PortInst port, String inoutNumber) throws FunctionalException {
+    public void addSourceWithSpiceCode(PortInst port, String inoutNumber) throws FunctionalException {
         HashSet<String> emptyList = new HashSet<>();
         if (port == null) {
             Accessory.showMessage("One of inputs doesn't have source.");
@@ -919,6 +778,12 @@ public class AuxilarySimpleAutotracing {
         }
         sourceList.add(source);
     }
+
+    /*
+    * Method for checking the presence of a file 
+    * 
+     */
+   
 
     /**
      * Method to get list with all sources to add them into spice declaration.
