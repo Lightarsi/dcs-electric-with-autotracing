@@ -78,7 +78,6 @@ public class SimpleAutotracing {
     }
 
     public void startTrace() {
-        Accessory.timeStart();
         simpleAutotracing = getSimpleAutotracing();
         scheme = Scheme.getInstance();
         auxisa = AuxilarySimpleAutotracing.getAuxilaryOnlyObject();
@@ -393,7 +392,6 @@ public class SimpleAutotracing {
         HashMap<Integer, Pair<String, Integer>> map = new HashMap<>();
 
         for (int firstC : firstChainsList) {
-            System.out.println("firstC " + firstC);
             futures.add(service.submit(new Runnable() {
                 public void run() {
                     NonOrientedGlobalGraph noggX = new NonOrientedGlobalGraph(nogg);
@@ -477,7 +475,7 @@ public class SimpleAutotracing {
             if (doDelete) {
                 for (String port : portList) {
                     String newParam = parameter.substring(0,parameter.indexOf("."));
-                    System.out.println(newParam + "." + port);
+                    Accessory.printLog(newParam + "." + port);
                     nogg.affectVertex(nogg.findStartingPoint(newParam+"."+port)); // affect all connected ports
                 }
             }

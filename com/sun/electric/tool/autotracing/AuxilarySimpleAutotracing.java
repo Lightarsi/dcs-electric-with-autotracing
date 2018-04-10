@@ -566,43 +566,6 @@ public class AuxilarySimpleAutotracing {
             case "ION":
                 break;
 
-            /*case "SPM1":
-            case "SPM2":
-            case "SPM3":
-            case "SPM4":
-            case "SPM5":
-            case "SPM6":
-            case "SPM7":
-            case "SPM8":
-            case "SPM9":
-                NodeInst thisNi = pi.getNodeInst();
-                parameter = auxisa.getParameter(thisNi.toString());
-                System.out.println("secondPort " + secondPort);
-                if (parameter != null) {
-                    ArrayList<String> checkList = new ArrayList<>();
-                    Iterator<PortInst> piItr = thisNi.getPortInsts();
-                    while (piItr.hasNext()) {
-                        PortInst nextPi = piItr.next();
-                        //System.out.println(nextPi.toString());
-                        //port 'symbol:SPM1{ic}[SPM1@0].Y20'
-                        if (nextPi.hasConnections()) {
-                            String piStr = nextPi.toString();
-                            String portName = piStr.substring(piStr.indexOf("."), piStr.lastIndexOf("'"));
-                            checkList.add(portName);
-                        }
-                    }
-
-                    for (String check : checkList) {
-                        String findCheck = parameter + ".*" + check + "$";
-                        System.out.println("findCheck " + findCheck);
-                        if ((nogg.findStartingPoint(findCheck)) == -1) {
-                            return false;
-                        }
-                    }
-                    break;
-                } else {
-                    
-                }*/
         }
         return (str == null) || (nogg.findStartingPoint(str)) != -1;
     }
