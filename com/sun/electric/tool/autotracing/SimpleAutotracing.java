@@ -322,7 +322,7 @@ public class SimpleAutotracing {
                 }
             }
             if (!usedNodeList.contains(pi.getNodeInst().toString())) {
-                if (pi.getNodeInst().toString().contains("SPM")) {
+                if (pi.getNodeInst().toString().contains("SPM") || pi.getNodeInst().toString().contains("PPC")) {
                     nodeList.addFirst(pi.getNodeInst());
                     usedNodeList.add(pi.getNodeInst().toString());
                 } else {

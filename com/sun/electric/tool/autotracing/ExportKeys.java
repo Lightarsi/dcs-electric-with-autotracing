@@ -65,7 +65,7 @@ public class ExportKeys {
     /**
      * Method to extract keys from cell.
      */
-    public static void ExportKeysFromScheme() {
+    public static void ExportKeysFromScheme() throws FunctionalException {
         Accessory.cleanFile(Accessory.CONFIG_WITHOUT_MODELLING_PATH);
         Cell curcell = Job.getUserInterface().getCurrentCell();
 
@@ -87,7 +87,7 @@ public class ExportKeys {
         }
     }
 
-    public static void ExportKeysFromSchemeWithIndication() throws IOException {
+    public static void ExportKeysFromSchemeWithIndication() throws IOException, FunctionalException {
         ExportKeysFromSchemeWithIndication(null, true);
     }
 
@@ -96,7 +96,7 @@ public class ExportKeys {
      *
      * @throws java.io.IOException
      */
-    public static void ExportKeysFromSchemeWithIndication(Cell curcell, boolean fromScheme) throws IOException {
+    public static void ExportKeysFromSchemeWithIndication(Cell curcell, boolean fromScheme) throws IOException, FunctionalException {
         Accessory.cleanFile(Accessory.CONFIG_WITHOUT_MODELLING_PATH);
         if (curcell == null) {
             curcell = Job.getUserInterface().getCurrentCell();
@@ -112,7 +112,7 @@ public class ExportKeys {
                 Pattern ppc = Pattern.compile(".*(PPC<)+.*(\\.n)+(.*)");
                 Pattern cau = Pattern.compile(".*(CAU<)+.*(\\.n)+(.*)");
                 Pattern pau = Pattern.compile(".*(PAU<)+.*(\\.n)+(.*)");
-                Pattern spm = Pattern.compile(".*(SPM<)+.*(\\.n)+(.*)");
+                Pattern spm = Pattern.compile(".*(SPM<)+.*(\\.[noprstuvw])+(.*)");
                 if (p.matcher(thisPort.toString()).matches()) {
                     String blockNum = parsePortToBlock(thisPort.toString());
                     String keyNum = parsePortToKey(thisPort.toString(), thisPortNot.toString());
@@ -150,13 +150,14 @@ public class ExportKeys {
     /**
      * Method implemets indication with not CB block (others are PPC, CAU, PAU).
      */
-    private static boolean indicationWithPattern(Pattern pat, PortInst thisPort, PortInst thisPortNot, String PATH) throws IOException {
+    private static boolean indicationWithPattern(Pattern pat, PortInst thisPort, PortInst thisPortNot, String PATH) throws IOException, FunctionalException {
         if (pat.matcher(thisPort.toString()).matches()) {
             String blockNum = parsePortToBlock(thisPort.toString());
             String keyNum = parsePortToKey(thisPort.toString(), thisPortNot.toString());
             int result = Integer.valueOf(blockNum) + (Integer.valueOf(keyNum));
             NodeInst ni = thisPort.getNodeInst();
             PortInst[] piArray = getPortsToIndicateOther(keyNum, ni, PATH);
+            //PortInst[] piArray = getPortsToIndicate(keyNum, ni);
             for (PortInst pi : piArray) {
                 if (pi.getConnections() != null) {
                     Iterator<Connection> itr2 = pi.getConnections();
@@ -186,19 +187,28 @@ public class ExportKeys {
     /**
      * Method to get configuration number of keys in scheme.
      */
-    private static String parsePortToKey(String port1, String port2) {
-        if ((port1.substring(port1.lastIndexOf("n") + 1, port1.lastIndexOf("'"))) != null) {
-            String key = port1.substring(port1.lastIndexOf("n") + 1, port1.lastIndexOf("'"));
+    private static String parsePortToKey(String port1, String port2) throws FunctionalException {
+        String mainLetter = "n";
+        mainLetter = port1.substring(port1.lastIndexOf(".")+1,port1.lastIndexOf(".")+2);
+        if(Accessory.explainSPMLetter(mainLetter) == -1) {
+            throw new FunctionalException("Something is bad with Address domain.");
+        }
+        if ((port1.substring(port1.lastIndexOf(mainLetter) + 1, port1.lastIndexOf("'"))) != null) {
+            String key = port1.substring(port1.lastIndexOf(mainLetter) + 1, port1.lastIndexOf("'"));
             if (Integer.valueOf(key) % 2 == 0) {
                 int intKey = Integer.valueOf(key);
-                return String.valueOf((intKey / 2) - 1);
+                int preResult = (intKey / 2) - 1;
+                int result = preResult + Accessory.explainSPMLetter(mainLetter);
+                return String.valueOf(result);
             }
         }
-        if ((port2.substring(port2.lastIndexOf("n") + 1, port2.lastIndexOf("'"))) != null) {
-            String key = port2.substring(port2.lastIndexOf("n") + 1, port2.lastIndexOf("'"));
+        if ((port2.substring(port2.lastIndexOf(mainLetter) + 1, port2.lastIndexOf("'"))) != null) {
+            String key = port2.substring(port2.lastIndexOf(mainLetter) + 1, port2.lastIndexOf("'"));
             if (Integer.valueOf(key) % 2 == 0) {
                 int intKey = Integer.valueOf(key);
-                return String.valueOf((intKey / 2) - 1);
+                int preResult = (intKey / 2) - 1;
+                int result = preResult + Accessory.explainSPMLetter(mainLetter);
+                return String.valueOf(result);
             }
         }
         return null;

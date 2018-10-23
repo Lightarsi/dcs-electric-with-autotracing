@@ -71,7 +71,7 @@ public class Autotracing extends Tool {
     /**
      * Method to make path from one point to another using autotracing system.
      */
-    public static void makePathOrClean() {
+    public static void makePathOrClean() throws FunctionalException {
         File startingPointFile = new File(Accessory.POINTS_PATH);
         Accessory.cleanFile(Accessory.CONFIG_PATH);
         if (Accessory.getStringCount(startingPointFile) != 2) {
@@ -106,7 +106,7 @@ public class Autotracing extends Tool {
      * Exporting keys from scheme to file, link to ExportKeysFromScheme method.
      * @throws java.io.IOException
      */
-    public static void ExportKeys() throws IOException {
+    public static void ExportKeys() throws IOException, FunctionalException {
         ExportKeys.ExportKeysFromScheme();
     }
 
@@ -115,7 +115,7 @@ public class Autotracing extends Tool {
      * link to ExportKeysFromSchemeWithIndication method.
      * @throws java.io.IOException
      */
-    public static void ExportKeysWithIndication() throws IOException {
+    public static void ExportKeysWithIndication() throws IOException, FunctionalException {
         ExportKeys.ExportKeysFromSchemeWithIndication();
     }
 

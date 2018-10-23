@@ -296,7 +296,12 @@ public final class NonOrientedGlobalGraph extends NonOrientedGraph {
                     endPoint = currentVertex;
                     endIsFound = true;
                     lastResult = result;
-                } 
+                    // added 21.05.2018 to avoid SPM crossing with other tracing
+                    VertToDeleteList.add(currentVertex);
+                    resetVertices();
+                    Pair<String, Integer> pair = new Pair<>(lastResult, lastCount);
+                    return pair;
+                }
             }
         }
 

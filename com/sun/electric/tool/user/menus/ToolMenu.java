@@ -173,6 +173,8 @@ import javax.swing.SwingUtilities;
 
 
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //import bsh.Interpreter;
 /**
@@ -218,7 +220,11 @@ public class ToolMenu {
         },
                 new EMenuItem("Point To Point") {
             public void run() {
-                setPathPointToPoint();
+                try {
+                    setPathPointToPoint();
+                } catch (FunctionalException ex) {
+                    Logger.getLogger(ToolMenu.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         },
                 new EMenuItem("Write Simulation Path") {
@@ -229,7 +235,7 @@ public class ToolMenu {
                 SEPARATOR,
                 new EMenuItem("Import Keys") {
             public void run() {
-                javaBshDo("c:\\CYGELENG\\electric\\ImportKeys.bsh");
+                new ImportKeys.startImportJob();
             }
         },
                 new EMenuItem("Delete Unused Part") {
@@ -2759,7 +2765,7 @@ public class ToolMenu {
     /**
      * Method to make path from one point to another using autotracing system.
      */
-    public static void setPathPointToPoint() {
+    public static void setPathPointToPoint() throws FunctionalException {
         try {
             Autotracing.ExportKeys();
         } catch (IOException ioe) {

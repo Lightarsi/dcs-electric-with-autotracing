@@ -234,6 +234,30 @@ public class Accessory {
         return port.substring(0, port.indexOf(".")); // name smth like CB<7454
         // port '5400TP035:ION{ic}[ION<1].ION'
     }
+    
+    /**
+     * method implemets parsing of Port String to get Block Name.
+     *
+     * @param port
+     * @return
+     */
+    public static String parseNodeToName(String nodeString) {
+        assert nodeString != null;
+        return nodeString.substring(nodeString.indexOf("'"), nodeString.lastIndexOf("'")); // name smth like CB<7454
+        // port '5400TP035:ION{ic}[ION<1].ION'
+    }
+    
+     /**
+     * method implemets parsing of Port String to get Block Name.
+     *
+     * @param port
+     * @return
+     */
+    public static String parseNodeToBlock(String nodeString) {
+        assert nodeString != null;
+        return nodeString.substring(nodeString.indexOf(":"), nodeString.indexOf("{")); // name smth like CB<7454
+        // port '5400TP035:ION{ic}[ION<1].ION'
+    }
 
     /**
      * method implemets parsing of Port String to get Block Name.
