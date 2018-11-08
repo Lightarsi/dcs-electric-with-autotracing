@@ -767,8 +767,8 @@ public class AuxilarySimpleAutotracing {
                 break;
             case "vpwl":
                 //V$(node_name) $(VSP) 0 PWL $(VAL)
-                source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 "
-                        + paramMap.get("VAL");
+                source = "V" + Accessory.parsePortToName(pi.toString()) + " " + VSP + " 0 PWL ("
+                        + paramMap.get("VAL") + ")";
                 break;
             default:
                 Accessory.showMessage("Some problems with source " + realName);

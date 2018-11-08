@@ -19,6 +19,8 @@
  */
 package com.sun.electric.tool.autotracing;
 
+import java.io.Serializable;
+
 /**
  *
  * @author diivanov

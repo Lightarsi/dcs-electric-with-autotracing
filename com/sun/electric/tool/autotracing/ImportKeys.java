@@ -42,6 +42,9 @@ import com.sun.electric.tool.Job;
 import com.sun.electric.tool.JobException;
 import com.sun.electric.tool.user.User;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,6 +152,7 @@ public class ImportKeys {
      */
     public static void controller(Cell cell) throws IOException {
         System.out.println(Thread.currentThread().getName());
+        HashMap<PortInst, PortInst> arcsToImport = new HashMap<>();
         //System.out.println("Script started");
         boolean nextAuto = true;
         String DirF = Accessory.CONFIG_PATH;
@@ -179,8 +183,6 @@ public class ImportKeys {
         } else {
             curcell = cell;
         }
-
-        
 
         File f = new File(DirF);
         float count = getStringCount(f);
@@ -266,8 +268,9 @@ public class ImportKeys {
                                         String[] parts2 = myString2.split("].");
                                         String name2 = parts2[1];
                                         if (name2.equals(diff_key_not_SPM_1 + "'")) {
-                                            ArcProto arc = Generic.tech().universal_arc;
-                                            new CreateNewArc(arc, z_exp1, z_exp2, size);
+                                            //ArcProto arc = Generic.tech().universal_arc;
+                                            //new CreateNewArc(arc, z_exp1, z_exp2, size);
+                                            arcsToImport.put(z_exp1, z_exp2);
                                             needExtended = false;
                                         }
                                         q++;
@@ -281,8 +284,9 @@ public class ImportKeys {
                                         String[] parts2 = myString2.split("].");
                                         String name2 = parts2[1];
                                         if (name2.equals(diff_key_SPM_1 + "'")) {
-                                            ArcProto arc = Generic.tech().universal_arc;
-                                            Job job = new CreateNewArc(arc, z_exp1, z_exp2, size);
+                                            //ArcProto arc = Generic.tech().universal_arc;
+                                            //Job job = new CreateNewArc(arc, z_exp1, z_exp2, size);
+                                            arcsToImport.put(z_exp1, z_exp2);
                                             needExtended = false;
                                             /*while (job.getStatus().equals("done")) {
                                         }*/
@@ -329,6 +333,9 @@ public class ImportKeys {
 
             }
         }
+        System.out.println("Starting import to scheme");
+        ArcProto arc = Generic.tech().universal_arc;
+        Job job = new CreateLotsOfNewArcs(arc, arcsToImport, size);
         if (nextAuto) {
             new NextStepForAutotracing(cell);
         }
@@ -553,6 +560,47 @@ public class ImportKeys {
                 }
             }
             new ExportKeys.ExportAfter(cell);
+            return true;
+        }
+    }
+
+    /**
+     * Class for "CreateNewArc", class realises createNewArc Job to avoid
+     * "database changes are forbidden" error.
+     */
+    private static class CreateLotsOfNewArcs extends Job {
+
+        private ArcProto ap;
+        private double size;
+        private final HashMap<PortInst, PortInst> mapOfPortPairs;
+
+        public CreateLotsOfNewArcs(ArcProto arc, HashMap<PortInst, PortInst> setOfPortPairs, double size) {
+            super("Create New Arc", User.getUserTool(), Job.Type.CHANGE, null, null, Job.Priority.USER);
+            this.ap = arc;
+            this.mapOfPortPairs = setOfPortPairs;
+            this.size = size;
+            startJob();
+        }
+
+        @Override
+        public boolean doIt() throws JobException {
+            EditingPreferences ep = EditingPreferences.getInstance();
+            mapOfPortPairs.entrySet().stream().map((entry) -> {
+                PortInst port1 = entry.getKey();
+                PortInst port2 = entry.getValue();
+                ArcInst newArc = ArcInst.makeInstance(ap, ep, port1, port2);
+                return newArc;
+            }).forEachOrdered((newArc) -> {
+                newArc.setLambdaBaseWidth(size);
+            });
+            /*mapOfPortPairs.stream().map((portsPair) -> {
+                PortInst firstPort = portsPair.getFirstObject();
+                PortInst secondPort = portsPair.getSecondObject();
+                ArcInst newArc = ArcInst.makeInstance(ap, ep, firstPort, secondPort);
+                return newArc;
+            }).forEachOrdered((newArc) -> {
+                newArc.setLambdaBaseWidth(size);
+            });*/
             return true;
         }
     }
